@@ -13,29 +13,29 @@ import { Skeleton } from "./ui/skeleton";
 
 export default function UserMenu() {
   const navigate = useNavigate();
-  const { data: session, isPending } = authClient.useSession();
+  // const { data: session, isPending } = authClient.useSession();
 
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
+  // if (isPending) {
+  //   return <Skeleton className="h-9 w-24" />;
+  // }
 
-  if (!session) {
-    return (
-      <Button asChild variant="outline">
-        <Link to="/login">Sign In</Link>
-      </Button>
-    );
-  }
+  // if (!session) {
+  //   return (
+  //     <Button asChild variant="outline">
+  //       <Link to="/login">Sign In</Link>
+  //     </Button>
+  //   );
+  // }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">{session.user.name}</Button>
+        <Button variant="outline">John Doe</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+        <DropdownMenuItem>john.doe@example.com</DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Button
             className="w-full"

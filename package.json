@@ -31,18 +31,21 @@
     "db:push": "turbo -F @dealort/db db:push",
     "db:studio": "turbo -F @dealort/db db:studio",
     "db:generate": "turbo -F @dealort/db db:generate",
-    "db:migrate": "turbo -F @dealort/db db:migrate"
+    "db:migrate": "turbo -F @dealort/db db:migrate",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "dotenv": "^17.2.2",
     "zod": "^4.1.11"
   },
   "devDependencies": {
-    "turbo": "^2.5.4",
     "@biomejs/biome": "2.3.4",
-    "ultracite": "6.3.2",
+    "@types/bun": "^1.2.6",
+    "prettier": "^3.6.2",
     "tsdown": "^0.15.5",
-    "@types/bun": "^1.2.6"
+    "turbo": "^2.5.4",
+    "ultracite": "6.3.2"
   },
   "packageManager": "bun@1.3.1"
 }

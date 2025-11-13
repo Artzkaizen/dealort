@@ -3,10 +3,18 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: "Lexend";
+  src: url("/assets/fonts/Lexend/Lexend-Regular.ttf");
+  font-weight: 500;
+  font-style: normal;
+}
+
 @theme {
   --font-sans:
-    "Inter", "Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    "Inter", "Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  --font-lexend: "Lexend", sans-serif;
 }
 
 html,
@@ -127,7 +135,7 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 font-lexend;
   }
   body {
     @apply bg-background text-foreground;

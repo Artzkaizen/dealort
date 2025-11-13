@@ -32,9 +32,5 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "cSpell.words": [
-    "dealort",
-    "libsql",
-    "orpc"
-  ]
+  "cSpell.words": ["dealort", "libsql", "orpc"]
 }

@@ -9,18 +9,13 @@
   "orm": "drizzle",
   "backend": "hono",
   "runtime": "bun",
-  "frontend": [
-    "tanstack-router"
-  ],
-  "addons": [
-    "turborepo",
-    "ultracite"
-  ],
+  "frontend": ["tanstack-router"],
+  "addons": ["turborepo", "ultracite"],
   "examples": [],
   "auth": "better-auth",
   "packageManager": "bun",
   "dbSetup": "none",
   "api": "orpc",
   "webDeploy": "none",
-  "serverDeploy": "none"
+  "serverDeploy": "none",
 }
