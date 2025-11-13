@@ -23,25 +23,28 @@ function HomeComponent() {
     >
       <div className="flex flex-col gap-2 min-w-[35%] px-4">
         <h1 className="text-4xl md:text-6xl max-w-md">The Best Launchpad For Your Start up</h1>
-        <p className="text-foreground/50 max-md:text-sm max-w-ms">A Virtual Data Room (VDR) that transforms promising startups into proven, investment-ready opportunities..</p>
+        <p className="text-foreground/50 max-md:text-sm max-w-ms">
+          A Virtual Data Room (VDR) that transforms promising startups into proven, investment-ready
+          opportunities..
+        </p>
 
         <div className="flex gap-1 mt-3">
           <Button asChild>
-            <Link to="/register">Get Started</Link>
+            <Link to="/register">Join Waitlist</Link>
           </Button>
           <Button asChild variant={"ghost"}>
-            <Link to="/products">View Products <StoreIcon /></Link>
+            <Link to="/products">
+              View Products <StoreIcon />
+            </Link>
           </Button>
         </div>
       </div>
 
-{/* <div className=""> */}
       <img
         src={DashboardImage}
         className="max-md:hidden shadow-[0_16px_40px_0_rgba(0,0,0,0.13),0_2px_8px_0_rgba(0,0,0,0.11)] rounded-xl transform-[perspective(10px)_rotateY(-0.4deg)_skewY(1deg)_scale(0.75)]"
         alt="Dashboard screenshot"
       />
-{/* </div> */}
 
       {/* <div className="grid gap-6">
           <section className="rounded-lg border p-4">
