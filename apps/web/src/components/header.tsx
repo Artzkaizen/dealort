@@ -21,8 +21,8 @@ export function Header() {
         "border-b": !isOpen,
       })}
     >
-      <div className="flex flex-row items-center justify-between">
-        <nav className="relative flex w-full items-center justify-between gap-4 px-2 py-3 sm:px-4">
+      <div className="flex flex-row items-center justify-evenly">
+        <nav className="relative flex w-full items-center justify-evenly gap-4 px-2 py-3 sm:px-4">
           <Link className="grow" to="/">
             <img
               alt="Logo"

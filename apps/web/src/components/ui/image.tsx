@@ -2,8 +2,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useRef, type ImgHTMLAttributes } from "react";
 
-export interface ImageProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> {
+export interface ImageProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, "loading"> {
   /**
    * The source URL of the image
    */
@@ -96,7 +95,7 @@ export function Image({
       },
       {
         rootMargin: "50px", // Start loading 50px before image enters viewport
-      }
+      },
     );
 
     observerRef.current.observe(imgElement);
@@ -170,9 +169,7 @@ export function Image({
       )}
 
       {/* Skeleton loading state */}
-      {isLoading && !loadingComponent && (
-        <Skeleton className="absolute inset-0 h-full w-full" />
-      )}
+      {isLoading && !loadingComponent && <Skeleton className="absolute inset-0 h-full w-full" />}
 
       {/* Main image */}
       {isInView && (
@@ -181,7 +178,7 @@ export function Image({
           alt={alt}
           className={cn(
             "h-full w-full object-cover transition-opacity duration-300",
-            isLoading ? "opacity-0" : "opacity-100"
+            isLoading ? "opacity-0" : "opacity-100",
           )}
           loading={nativeLazy ? "lazy" : undefined}
           onError={handleError}
