@@ -8,124 +8,155 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/(home)/__root";
-import { Route as ProductsRouteImport } from "./routes/(home)/products";
-import { Route as LoginRouteImport } from "./routes/login";
-import { Route as LaunchesRouteImport } from "./routes/(home)/launches";
-import { Route as DashboardRouteImport } from "./routes/dashboard";
-import { Route as IndexRouteImport } from "./routes/(home)/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as homeIndexRouteImport } from './routes/(home)/index'
+import { Route as homeProductsRouteImport } from './routes/(home)/products'
+import { Route as homeLayoutRouteImport } from './routes/(home)/layout'
+import { Route as homeLaunchesRouteImport } from './routes/(home)/launches'
 
-const ProductsRoute = ProductsRouteImport.update({
-  id: "/products",
-  path: "/products",
-  getParentRoute: () => rootRouteImport,
-} as any);
 const LoginRoute = LoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any);
-const LaunchesRoute = LaunchesRouteImport.update({
-  id: "/launches",
-  path: "/launches",
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
-} as any);
-const DashboardRoute = DashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+} as any)
+const homeIndexRoute = homeIndexRouteImport.update({
+  id: '/(home)/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
-const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+} as any)
+const homeProductsRoute = homeProductsRouteImport.update({
+  id: '/(home)/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const homeLayoutRoute = homeLayoutRouteImport.update({
+  id: '/(home)/layout',
+  path: '/layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const homeLaunchesRoute = homeLaunchesRouteImport.update({
+  id: '/(home)/launches',
+  path: '/launches',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/launches": typeof LaunchesRoute;
-  "/login": typeof LoginRoute;
-  "/products": typeof ProductsRoute;
+  '/login': typeof LoginRoute
+  '/launches': typeof homeLaunchesRoute
+  '/layout': typeof homeLayoutRoute
+  '/products': typeof homeProductsRoute
+  '/': typeof homeIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/launches": typeof LaunchesRoute;
-  "/login": typeof LoginRoute;
-  "/products": typeof ProductsRoute;
+  '/login': typeof LoginRoute
+  '/launches': typeof homeLaunchesRoute
+  '/layout': typeof homeLayoutRoute
+  '/products': typeof homeProductsRoute
+  '/': typeof homeIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRoute;
-  "/launches": typeof LaunchesRoute;
-  "/login": typeof LoginRoute;
-  "/products": typeof ProductsRoute;
+  __root__: typeof rootRouteImport
+  '/login': typeof LoginRoute
+  '/(home)/launches': typeof homeLaunchesRoute
+  '/(home)/layout': typeof homeLayoutRoute
+  '/(home)/products': typeof homeProductsRoute
+  '/(home)/': typeof homeIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/dashboard" | "/launches" | "/login" | "/products";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/dashboard" | "/launches" | "/login" | "/products";
-  id: "__root__" | "/" | "/dashboard" | "/launches" | "/login" | "/products";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/login'
+    | '/launches'
+    | '/layout'
+    | '/products'
+    | '/'
+    | '/dashboard'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/login' | '/launches' | '/layout' | '/products' | '/' | '/dashboard'
+  id:
+    | '__root__'
+    | '/login'
+    | '/(home)/launches'
+    | '/(home)/layout'
+    | '/(home)/products'
+    | '/(home)/'
+    | '/dashboard/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  DashboardRoute: typeof DashboardRoute;
-  LaunchesRoute: typeof LaunchesRoute;
-  LoginRoute: typeof LoginRoute;
-  ProductsRoute: typeof ProductsRoute;
+  LoginRoute: typeof LoginRoute
+  homeLaunchesRoute: typeof homeLaunchesRoute
+  homeLayoutRoute: typeof homeLayoutRoute
+  homeProductsRoute: typeof homeProductsRoute
+  homeIndexRoute: typeof homeIndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/products": {
-      id: "/products";
-      path: "/products";
-      fullPath: "/products";
-      preLoaderRoute: typeof ProductsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/login": {
-      id: "/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof LoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/launches": {
-      id: "/launches";
-      path: "/launches";
-      fullPath: "/launches";
-      preLoaderRoute: typeof LaunchesRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard": {
-      id: "/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(home)/': {
+      id: '/(home)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof homeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(home)/products': {
+      id: '/(home)/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof homeProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(home)/layout': {
+      id: '/(home)/layout'
+      path: '/layout'
+      fullPath: '/layout'
+      preLoaderRoute: typeof homeLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(home)/launches': {
+      id: '/(home)/launches'
+      path: '/launches'
+      fullPath: '/launches'
+      preLoaderRoute: typeof homeLaunchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  LaunchesRoute: LaunchesRoute,
   LoginRoute: LoginRoute,
-  ProductsRoute: ProductsRoute,
-};
+  homeLaunchesRoute: homeLaunchesRoute,
+  homeLayoutRoute: homeLayoutRoute,
+  homeProductsRoute: homeProductsRoute,
+  homeIndexRoute: homeIndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
