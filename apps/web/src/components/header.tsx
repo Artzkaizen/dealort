@@ -23,7 +23,7 @@ export function Header() {
     >
       <div className="flex flex-row items-center justify-between">
         <nav className="relative flex w-full items-center justify-evenly gap-4 px-[50px] py-3 sm:px-4">
-          <Link className="" to="/">
+          <Link className="max-md:grow" to="/">
             <img
               alt="Logo"
               className="h-5 invert dark:invert-0"
@@ -39,9 +39,14 @@ export function Header() {
               { "max-sm:h-auto": isOpen, "max-sm:h-0": !isOpen }
             )}
           >
-            <div className="flex grow gap-3 max-sm:flex-col">
+            <div className="flex gap-3 max-sm:flex-col sm:border-r sm:pr-3">
               {links.map(({ to, label }) => (
-                <Link key={to} to={to}>
+                <Link
+                  activeProps={{ className: "scale-105 text-foreground" }}
+                  className="text-foreground/70 transition-transform hover:scale-105"
+                  key={to}
+                  to={to}
+                >
                   {label}
                 </Link>
               ))}
