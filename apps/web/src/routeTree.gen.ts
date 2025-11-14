@@ -10,96 +10,99 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
+import { Route as PublicLayoutRouteImport } from './routes/_public/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as homeIndexRouteImport } from './routes/(home)/index'
-import { Route as homeProductsRouteImport } from './routes/(home)/products'
-import { Route as homeLayoutRouteImport } from './routes/(home)/layout'
-import { Route as homeLaunchesRouteImport } from './routes/(home)/launches'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicProductsRouteImport } from './routes/_public/products'
+import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicLayoutRoute = PublicLayoutRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const homeIndexRoute = homeIndexRouteImport.update({
-  id: '/(home)/',
+  id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => DashboardLayoutRoute,
 } as any)
-const homeProductsRoute = homeProductsRouteImport.update({
-  id: '/(home)/products',
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicLayoutRoute,
+} as any)
+const PublicProductsRoute = PublicProductsRouteImport.update({
+  id: '/products',
   path: '/products',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicLayoutRoute,
 } as any)
-const homeLayoutRoute = homeLayoutRouteImport.update({
-  id: '/(home)/layout',
-  path: '/layout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const homeLaunchesRoute = homeLaunchesRouteImport.update({
-  id: '/(home)/launches',
+const PublicLaunchesRoute = PublicLaunchesRouteImport.update({
+  id: '/launches',
   path: '/launches',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicLayoutRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/login': typeof LoginRoute
-  '/launches': typeof homeLaunchesRoute
-  '/layout': typeof homeLayoutRoute
-  '/products': typeof homeProductsRoute
-  '/': typeof homeIndexRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/launches': typeof PublicLaunchesRoute
+  '/products': typeof PublicProductsRoute
+  '/': typeof PublicIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/launches': typeof homeLaunchesRoute
-  '/layout': typeof homeLayoutRoute
-  '/products': typeof homeProductsRoute
-  '/': typeof homeIndexRoute
+  '/launches': typeof PublicLaunchesRoute
+  '/products': typeof PublicProductsRoute
+  '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_public': typeof PublicLayoutRouteWithChildren
+  '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/login': typeof LoginRoute
-  '/(home)/launches': typeof homeLaunchesRoute
-  '/(home)/layout': typeof homeLayoutRoute
-  '/(home)/products': typeof homeProductsRoute
-  '/(home)/': typeof homeIndexRoute
+  '/_public/launches': typeof PublicLaunchesRoute
+  '/_public/products': typeof PublicProductsRoute
+  '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/dashboard'
     | '/login'
     | '/launches'
-    | '/layout'
     | '/products'
     | '/'
-    | '/dashboard'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/launches' | '/layout' | '/products' | '/' | '/dashboard'
+  to: '/login' | '/launches' | '/products' | '/' | '/dashboard'
   id:
     | '__root__'
+    | '/_public'
+    | '/dashboard'
     | '/login'
-    | '/(home)/launches'
-    | '/(home)/layout'
-    | '/(home)/products'
-    | '/(home)/'
+    | '/_public/launches'
+    | '/_public/products'
+    | '/_public/'
     | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  PublicLayoutRoute: typeof PublicLayoutRouteWithChildren
+  DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
   LoginRoute: typeof LoginRoute
-  homeLaunchesRoute: typeof homeLaunchesRoute
-  homeLayoutRoute: typeof homeLayoutRoute
-  homeProductsRoute: typeof homeProductsRoute
-  homeIndexRoute: typeof homeIndexRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -111,51 +114,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
+    '/dashboard': {
+      id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexRouteImport
+      preLoaderRoute: typeof DashboardLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(home)/': {
-      id: '/(home)/'
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof PublicLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/_public/': {
+      id: '/_public/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof homeIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicLayoutRoute
     }
-    '/(home)/products': {
-      id: '/(home)/products'
+    '/_public/products': {
+      id: '/_public/products'
       path: '/products'
       fullPath: '/products'
-      preLoaderRoute: typeof homeProductsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicProductsRouteImport
+      parentRoute: typeof PublicLayoutRoute
     }
-    '/(home)/layout': {
-      id: '/(home)/layout'
-      path: '/layout'
-      fullPath: '/layout'
-      preLoaderRoute: typeof homeLayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(home)/launches': {
-      id: '/(home)/launches'
+    '/_public/launches': {
+      id: '/_public/launches'
       path: '/launches'
       fullPath: '/launches'
-      preLoaderRoute: typeof homeLaunchesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicLaunchesRouteImport
+      parentRoute: typeof PublicLayoutRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  LoginRoute: LoginRoute,
-  homeLaunchesRoute: homeLaunchesRoute,
-  homeLayoutRoute: homeLayoutRoute,
-  homeProductsRoute: homeProductsRoute,
-  homeIndexRoute: homeIndexRoute,
+interface PublicLayoutRouteChildren {
+  PublicLaunchesRoute: typeof PublicLaunchesRoute
+  PublicProductsRoute: typeof PublicProductsRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+}
+
+const PublicLayoutRouteChildren: PublicLayoutRouteChildren = {
+  PublicLaunchesRoute: PublicLaunchesRoute,
+  PublicProductsRoute: PublicProductsRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
+
+const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
+  PublicLayoutRouteChildren,
+)
+
+interface DashboardLayoutRouteChildren {
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(
+  DashboardLayoutRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  PublicLayoutRoute: PublicLayoutRouteWithChildren,
+  DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

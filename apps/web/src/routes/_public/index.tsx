@@ -1,23 +1,35 @@
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  CopyrightIcon,
+  HandCoinsIcon,
+  RocketIcon,
+  StoreIcon,
+  WrenchIcon,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import z from "zod";
 import { DashboardImage } from "@/assets/screenshots";
 import { Button } from "@/components/ui/button";
-import { CopyrightIcon, HandCoinsIcon, RocketIcon, StoreIcon, WrenchIcon } from "lucide-react";
-import { AnimatePresence, motion, useScroll } from "motion/react";
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "@tanstack/react-form";
-import z from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/(home)/")({
+export const Route = createFileRoute("/_public/")({
   component: HomeComponent,
 });
 
 const formSchema = z.object({
-  firstname: z.string().min(1, "First name is required."),
-  lastname: z.string().min(1, "Last name is required"),
+  firstName: z.string().min(1, "First name is required."),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.email("Invalid email"),
 });
 
@@ -26,17 +38,17 @@ function HomeComponent() {
 
   const form = useForm({
     defaultValues: {
-      firstname: "",
-      lastname: "",
+      firstName: "",
+      lastName: "",
       email: "",
     },
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       toast("You submitted the following values:", {
         description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+          <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
             <code>{JSON.stringify(value, null, 2)}</code>
           </pre>
         ),
@@ -61,14 +73,14 @@ function HomeComponent() {
           backgroundSize: "90px 150px",
         }}
       >
-        <div className="flex overflow-hidden items-center  h-full">
-          <div className="flex flex-col gap-2 min-w-[35%] px-4 max-md: mt-24">
+        <div className="flex h-full items-center overflow-hidden">
+          <div className="max-md: mt-24 flex min-w-[35%] flex-col gap-2 px-4">
             <AnimatePresence>
               <motion.h1
-                className="text-5xl md:text-6xl max-w-md"
+                className="max-w-md text-5xl md:text-6xl"
                 initial={{ y: -100 }}
-                whileInView={{ y: 0 }}
                 transition={{ type: "spring", duration: 0.7 }}
+                whileInView={{ y: 0 }}
               >
                 The Best Launchpad For Your Start up
               </motion.h1>
@@ -76,19 +88,19 @@ function HomeComponent() {
 
             <AnimatePresence>
               <motion.p
-                className="text-foreground/50 max-md:text-sm max-w-ms"
+                className="max-w-ms text-foreground/50 max-md:text-sm"
                 initial={{ x: -100 }}
-                whileInView={{ x: 0 }}
                 transition={{ type: "spring", duration: 0.8 }}
+                whileInView={{ x: 0 }}
               >
-                A Virtual Data Room (VDR) that transforms promising startups into proven,
-                investment-ready opportunities..
+                A Virtual Data Room (VDR) that transforms promising startups
+                into proven, investment-ready opportunities..
               </motion.p>
             </AnimatePresence>
 
             <AnimatePresence>
               <motion.div
-                className="flex gap-1 mt-3"
+                className="mt-3 flex gap-1"
                 // initial={{ y: 100 }}
                 // whileInView={{ y: 0 }}
                 // transition={{ type: "spring", duration: 0.8 }}
@@ -108,12 +120,14 @@ function HomeComponent() {
 
           <AnimatePresence>
             <motion.img
-              className="relative max-md:hidden shadow-[0_16px_40px_0_rgba(0,0,0,0.13),0_2px_8px_0_rgba(0,0,0,0.11)] rounded-xl transform-[perspective(10px)_rotateY(-0.4deg)_skewY(1deg)_scale(0.75)]"
-              initial={{ right: -300 }}
-              whileInView={{ right: 0 }}
-              transition={{ type: "spring", duration: 2 }}
-              src={DashboardImage}
               alt="Dashboard screenshot"
+              className="transform-[perspective(10px)_rotateY(-0.4deg)_skewY(1deg)_scale(0.75)] relative rounded-xl shadow-[0_16px_40px_0_rgba(0,0,0,0.13),0_2px_8px_0_rgba(0,0,0,0.11)] max-md:hidden"
+              height={100}
+              initial={{ right: -300 }}
+              src={DashboardImage}
+              transition={{ type: "spring", duration: 2 }}
+              whileInView={{ right: 0 }}
+              width={100}
             />
           </AnimatePresence>
         </div>
@@ -137,36 +151,40 @@ function HomeComponent() {
         </div> */}
       </section>
 
-      <section id="waitlist" className="flex flex-col justify-center items-center mb-16">
-        <div className="flex gap-1 bg-background w-full mb-1 border-t items-center justify-center py-5 overflow-hidden">
+      <section
+        className="mb-16 flex flex-col items-center justify-center"
+        id="waitlist"
+      >
+        <div className="mb-1 flex w-full items-center justify-center gap-1 overflow-hidden border-t bg-background py-5">
           <RollingCubeFeature />
         </div>
 
-        <Card className="max-w-full  sm:min-w-sm sm:max-w-xl overflow-hidden">
+        <Card className="max-w-full overflow-hidden sm:min-w-sm sm:max-w-xl">
           <CardHeader>
             <CardTitle>Join the wait list</CardTitle>
             <CardDescription>
-              Be the first to know when we launch so you do not miss out on early perks.
+              Be the first to know when we launch so you do not miss out on
+              early perks.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form
+              className="flex flex-col gap-2"
               id="waitlist-form"
               onSubmit={(e) => {
                 e.preventDefault();
                 form.handleSubmit();
               }}
-              className="flex flex-col gap-2"
             >
-              <div className="flex *:flex-1 gap-1">
+              <div className="flex gap-1 *:flex-1">
                 <AnimatePresence>
                   <motion.div
                     initial={{ x: -100 }}
-                    whileInView={{ x: 0 }}
                     transition={{ type: "spring", duration: 0.8 }}
                     viewport={{ once: true }}
+                    whileInView={{ x: 0 }}
                   >
-                    <form.Field name="firstname">
+                    <form.Field name="firstName">
                       {(field) => (
                         <div className="space-y-2">
                           <Label htmlFor={field.name}>First name</Label>
@@ -175,8 +193,8 @@ function HomeComponent() {
                             name={field.name}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
-                            type="text"
                             placeholder="john"
+                            type="text"
                             value={field.state.value}
                           />
                           {field.state.meta.errors.map((error) => (
@@ -193,11 +211,11 @@ function HomeComponent() {
                 <AnimatePresence>
                   <motion.div
                     initial={{ x: 100 }}
-                    whileInView={{ x: 0 }}
                     transition={{ type: "spring", duration: 0.8 }}
                     viewport={{ once: true }}
+                    whileInView={{ x: 0 }}
                   >
-                    <form.Field name="lastname">
+                    <form.Field name="lastName">
                       {(field) => (
                         <div className="space-y-2">
                           <Label htmlFor={field.name}>Last name</Label>
@@ -206,8 +224,8 @@ function HomeComponent() {
                             name={field.name}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
-                            type="text"
                             placeholder="doe"
+                            type="text"
                             value={field.state.value}
                           />
                           {field.state.meta.errors.map((error) => (
@@ -226,9 +244,9 @@ function HomeComponent() {
                 <motion.div
                   className="flex flex-col gap-5"
                   initial={{ y: 100 }}
-                  whileInView={{ y: 0 }}
                   transition={{ type: "spring", duration: 1 }}
                   viewport={{ once: true }}
+                  whileInView={{ y: 0 }}
                 >
                   <form.Field name="email">
                     {(field) => (
@@ -236,12 +254,12 @@ function HomeComponent() {
                         <Label htmlFor={field.name}>Email</Label>
                         <Input
                           id={field.name}
+                          inputMode="email"
                           name={field.name}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
-                          type="email"
                           placeholder="johndoe@example.com"
-                          inputMode="email"
+                          type="email"
                           value={field.state.value}
                         />
                         {field.state.meta.errors.map((error) => (
@@ -253,7 +271,9 @@ function HomeComponent() {
                     )}
                   </form.Field>
 
-                  <Button className="w-full sm:w-fit py-3 sm:px-16 sm: ml-auto">Join</Button>
+                  <Button className="sm: ml-auto w-full py-3 sm:w-fit sm:px-16">
+                    Join
+                  </Button>
                 </motion.div>
               </AnimatePresence>
             </form>
@@ -262,15 +282,16 @@ function HomeComponent() {
       </section>
 
       <footer
-        className="border-t py-12 flex items-center justify-center"
+        className="flex items-center justify-center border-t py-12"
         style={{
           backgroundImage:
             "linear-gradient(rgba(200, 200, 200, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(200, 200, 200, 0.15) 1px, transparent 1px)",
           backgroundSize: "90px 150px",
         }}
       >
-        <p className="flex gap-2 text-sm text-foreground/50">
-          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All rights reserved
+        <p className="flex gap-2 text-foreground/50 text-sm">
+          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All rights
+          reserved
         </p>
       </footer>
     </main>
@@ -301,20 +322,16 @@ function RollingCubeFeature() {
       setCurrentIdx((prev) => (prev + 1) % items.length);
     }, 3000);
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, []);
 
   return (
-    <div className="flex-col gap-2 h-6 min-h-6" style={{ perspective: 80 }}>
+    <div className="h-6 min-h-6 flex-col gap-2" style={{ perspective: 80 }}>
       <AnimatePresence mode="wait">
         <motion.p
-          key={currentIdx}
-          initial={{
-            opacity: 0,
-            rotateX: -90,
-            y: 20,
-          }}
           animate={{
             opacity: 1,
             rotateX: 0,
@@ -324,6 +341,7 @@ function RollingCubeFeature() {
               ease: "easeInOut",
             },
           }}
+          className="flex h-6 min-h-6 origin-bottom items-center justify-center gap-0.5 text-foreground/60 text-xs"
           exit={{
             opacity: 0,
             rotateX: 90,
@@ -333,7 +351,12 @@ function RollingCubeFeature() {
               ease: "easeInOut",
             },
           }}
-          className="flex gap-0.5 text-xs text-foreground/60 items-center justify-center h-6 min-h-6 origin-bottom"
+          initial={{
+            opacity: 0,
+            rotateX: -90,
+            y: 20,
+          }}
+          key={currentIdx}
           style={{
             backfaceVisibility: "hidden",
             willChange: "transform",
