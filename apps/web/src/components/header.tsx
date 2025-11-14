@@ -37,7 +37,7 @@ export default function Header() {
 
             <div className="flex gap-2 max-sm:pb-5">
               <Button asChild>
-                <Link to="/login" className="text-xs">
+                <Link to="#waitlist" className="text-xs">
                   Join Waitlist
                 </Link>
               </Button>

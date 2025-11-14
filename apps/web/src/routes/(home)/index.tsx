@@ -1,22 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DashboardImage } from "@/assets/screenshots";
 import { Button } from "@/components/ui/button";
-import {
-  Copy,
-  CopyrightIcon,
-  HandCoinsIcon,
-  RocketIcon,
-  StoreIcon,
-  WrenchIcon,
-} from "lucide-react";
+import { CopyrightIcon, HandCoinsIcon, RocketIcon, StoreIcon, WrenchIcon } from "lucide-react";
 import { AnimatePresence, motion, useScroll } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Field, useForm } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import z from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { FormMessage } from "@/components/ui/form";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
@@ -110,7 +103,7 @@ function HomeComponent() {
                   viewport={{ once: true }}
                 >
                   <Button asChild>
-                    <Link to="#waitlist">Join Waitlist</Link>
+                    <a href="#waitlist">Join Waitlist</a>
                   </Button>
                   <Button asChild variant={"ghost"}>
                     <Link to="/products">
@@ -239,7 +232,7 @@ function HomeComponent() {
 
                 <AnimatePresence>
                   <motion.div
-                  className="flex flex-col gap-5"
+                    className="flex flex-col gap-5"
                     initial={{ y: 100 }}
                     whileInView={{ y: 0 }}
                     transition={{ type: "spring", duration: 1 }}
