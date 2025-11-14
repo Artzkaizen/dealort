@@ -167,101 +167,77 @@ function HomeComponent() {
               }}
             >
               <div className="flex gap-1 *:flex-1">
-                <motion.div
-                  initial={{ x: -100 }}
-                  transition={{ type: "spring", duration: 0.8 }}
-                  viewport={{ once: true }}
-                  whileInView={{ x: 0 }}
-                >
-                  <form.Field name="firstName">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor={field.name}>First name</Label>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="john"
-                          type="text"
-                          value={field.state.value}
-                        />
-                        {field.state.meta.errors.map((error) => (
-                          <p className="text-red-500" key={error?.message}>
-                            {error?.message}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </form.Field>
-                </motion.div>
+                <form.Field name="firstName">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={field.name}>First name</Label>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="john"
+                        type="text"
+                        value={field.state.value}
+                      />
+                      {field.state.meta.errors.map((error) => (
+                        <p className="text-red-500" key={error?.message}>
+                          {error?.message}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </form.Field>
 
-                <motion.div
-                  initial={{ x: 100 }}
-                  transition={{ type: "spring", duration: 0.8 }}
-                  viewport={{ once: true }}
-                  whileInView={{ x: 0 }}
-                >
-                  <form.Field name="lastName">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor={field.name}>Last name</Label>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="doe"
-                          type="text"
-                          value={field.state.value}
-                        />
-                        {field.state.meta.errors.map((error) => (
-                          <p className="text-red-500" key={error?.message}>
-                            {error?.message}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </form.Field>
-                </motion.div>
+                <form.Field name="lastName">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={field.name}>Last name</Label>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="doe"
+                        type="text"
+                        value={field.state.value}
+                      />
+                      {field.state.meta.errors.map((error) => (
+                        <p className="text-red-500" key={error?.message}>
+                          {error?.message}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </form.Field>
               </div>
 
-              <AnimatePresence>
-                <motion.div
-                  className="flex flex-col gap-5"
-                  initial={{ y: 100 }}
-                  transition={{ type: "spring", duration: 1 }}
-                  viewport={{ once: true }}
-                  whileInView={{ y: 0 }}
-                >
-                  <form.Field name="email">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor={field.name}>Email</Label>
-                        <Input
-                          id={field.name}
-                          inputMode="email"
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="johndoe@example.com"
-                          type="email"
-                          value={field.state.value}
-                        />
-                        {field.state.meta.errors.map((error) => (
-                          <p className="text-red-500" key={error?.message}>
-                            {error?.message}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </form.Field>
+              <form.Field name="email">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name}>Email</Label>
+                    <Input
+                      id={field.name}
+                      inputMode="email"
+                      name={field.name}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="johndoe@example.com"
+                      type="email"
+                      value={field.state.value}
+                    />
+                    {field.state.meta.errors.map((error) => (
+                      <p className="text-red-500" key={error?.message}>
+                        {error?.message}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </form.Field>
 
-                  <Button className="sm: ml-auto w-full py-3 sm:w-fit sm:px-16">
-                    Join
-                  </Button>
-                </motion.div>
-              </AnimatePresence>
+              <Button className="sm: ml-auto w-full py-3 sm:w-fit sm:px-16">
+                Join
+              </Button>
             </form>
           </CardContent>
         </Card>
