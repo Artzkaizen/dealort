@@ -34,8 +34,6 @@ const formSchema = z.object({
 });
 
 function HomeComponent() {
-  // const healthCheck = useQuery(orpc.healthCheck.queryOptions());
-
   const form = useForm({
     defaultValues: {
       firstName: "",
