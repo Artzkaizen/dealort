@@ -17,12 +17,15 @@ export function Header() {
 
   return (
     <div
-      className={cn("sticky top-0 z-50 bg-background/60 backdrop-blur-sm", {
-        "border-b": !isOpen,
-      })}
+      className={cn(
+        "sticky top-0 z-50 flex flex-col bg-background/70 backdrop-blur-sm",
+        {
+          "border-b": !isOpen,
+        }
+      )}
     >
       <div className="flex flex-row items-center justify-between">
-        <nav className="relative flex w-full items-center gap-4 px-4 py-3 sm:px-4 md:justify-evenly md:px-2">
+        <nav className="relative mx-auto flex w-full max-w-[90vw] items-center gap-4 px-4 py-3 sm:px-4 md:justify-evenly md:px-2">
           <Link className="max-md:grow" to="/">
             <img
               alt="Logo"
@@ -117,7 +120,7 @@ export function Header() {
 
       {!isOpen && (
         <motion.div
-          className="flex h-px items-start justify-start bg-foreground"
+          className="flex h-px w-full items-start justify-start bg-foreground"
           style={{ scaleX: scrollYProgress }}
         />
       )}
