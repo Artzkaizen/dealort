@@ -79,7 +79,7 @@ function UserProfile() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-t">
           <div
             className={cn(
               "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors",

@@ -64,6 +64,7 @@ function HomeComponent() {
 
   return (
     <main className="max-w-screen">
+      <MouseFollower />
       <section
         className="min-h-screen"
         style={{
@@ -257,6 +258,65 @@ function HomeComponent() {
         </p>
       </footer>
     </main>
+  );
+}
+
+function MouseFollower() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        setIsInputFocused(true);
+      }
+    };
+
+    const handleFocusOut = () => {
+      setIsInputFocused(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("focusin", handleFocusIn);
+    document.addEventListener("focusout", handleFocusOut);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("focusin", handleFocusIn);
+      document.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      animate={{
+        x: mousePosition.x - 10,
+        y: mousePosition.y - 10,
+        opacity: isInputFocused ? 0 : 1,
+      }}
+      className="pointer-events-none fixed z-1 h-5 w-5 rounded-full bg-foreground/10"
+      style={{
+        left: 0,
+        top: 0,
+        transform: "translate(-50%, -50%)",
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 150,
+        damping: 15,
+        mass: 0.1,
+        opacity: { duration: 0.2 },
+      }}
+    />
   );
 }
 
