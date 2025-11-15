@@ -47,6 +47,7 @@ export function Header() {
                   }}
                   className="opacity-80 transition-transform hover:scale-105"
                   key={to}
+                  onClick={() => setIsOpen(false)}
                   to={to}
                 >
                   {label}

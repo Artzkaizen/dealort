@@ -32,7 +32,14 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "cSpell.words": ["dealort", "libsql", "oklch", "orpc", "waitlist"],
+  "cSpell.words": [
+    "dealort",
+    "libsql",
+    "oklch",
+    "orpc",
+    "Topbar",
+    "waitlist"
+  ],
   "tailwindCSS.experimental.configFile": "apps/web/src/index.css",
 
   "files.autoSave": "afterDelay"

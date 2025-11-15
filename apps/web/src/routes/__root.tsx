@@ -3,13 +3,18 @@ import { createORPCClient } from "@orpc/client";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { createRootRouteWithContext, HeadContent, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { link, type orpc } from "@/utils/orpc";
 import "../index.css";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
@@ -50,11 +55,18 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <Outlet />
-        <Toaster richColors />
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={true}>
+            <Outlet />
+            <Toaster richColors />
+            {/* <TanStackRouterDevtools position="bottom-left" /> */}
+            <ReactQueryDevtools
+              buttonPosition="bottom-right"
+              position="bottom"
+            />
+          </SidebarProvider>
+        </TooltipProvider>
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
-      <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
     </>
   );
 }

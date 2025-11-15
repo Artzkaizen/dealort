@@ -1,4 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
@@ -6,8 +8,12 @@ export const Route = createFileRoute("/dashboard")({
 
 function RouteComponent() {
   return (
-    <div>
-      <Outlet />
-    </div>
+    <>
+      <DashboardSidebar />
+      <main className="block w-full">
+        <DashboardTopbar />
+        <Outlet />
+      </main>
+    </>
   );
 }
