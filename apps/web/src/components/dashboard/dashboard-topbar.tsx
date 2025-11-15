@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "../mode-toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 // Breadcrumbs with ellipsis for overflow
@@ -132,6 +133,8 @@ export function DashboardTopbar() {
       </div>
 
       <div className="flex items-center gap-2">
+        <ModeToggle />
+
         <Tooltip>
           <TooltipTrigger asChild>
             <Button asChild className="rounded-xl" variant="default">

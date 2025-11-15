@@ -1,5 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, LogOut, Settings, User } from "lucide-react";
+import {
+  ChevronsUpDownIcon,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  User,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,13 +18,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 // Define dashboard navigation links with icons
 // Each link includes a path, label, and icon component
@@ -75,31 +77,35 @@ function UserProfile() {
   };
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div
-          className={cn(
-            "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors hover:bg-accent hover:text-accent-foreground",
-            isCollapsed && "justify-center px-2"
-          )}
-        >
-          <Avatar className="size-8">
-            <AvatarImage alt="User" src="" />
-            <AvatarFallback>
-              <User className="size-4" />
-            </AvatarFallback>
-          </Avatar>
-          {!isCollapsed && (
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <span className="truncate font-medium text-sm">User Name</span>
-              <span className="truncate text-muted-foreground text-xs">
-                user@example.com
-              </span>
-            </div>
-          )}
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="flex items-center justify-between">
+          <div
+            className={cn(
+              "flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors",
+              isCollapsed && "justify-center px-2"
+            )}
+          >
+            <Avatar className="size-8">
+              <AvatarImage alt="User" src="" />
+              <AvatarFallback>
+                <User className="size-4" />
+              </AvatarFallback>
+            </Avatar>
+            {!isCollapsed && (
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <span className="truncate font-medium text-sm">User Name</span>
+                <span className="truncate text-muted-foreground text-xs">
+                  user@example.com
+                </span>
+              </div>
+            )}
+          </div>
+
+          <ChevronsUpDownIcon className="size-4" />
         </div>
-      </TooltipTrigger>
-      <TooltipContent className="p-2" side="right">
+      </PopoverTrigger>
+      <PopoverContent className="p-2" side="right">
         <div className="flex min-w-[120px] flex-col gap-1">
           <Button
             className="w-full justify-start"
@@ -120,8 +126,8 @@ function UserProfile() {
             Logout
           </Button>
         </div>
-      </TooltipContent>
-    </Tooltip>
+      </PopoverContent>
+    </Popover>
   );
 }
 

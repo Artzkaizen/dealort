@@ -149,7 +149,7 @@ function HomeComponent() {
           <RollingCubeFeature />
         </div>
 
-        <Card className="mt-5 max-w-full overflow-hidden border-none py-0 shadow-none sm:min-w-sm sm:max-w-xl">
+        <Card className="mt-5 max-w-full overflow-hidden border-none bg-transparent py-0 shadow-none sm:min-w-sm sm:max-w-xl">
           <CardHeader>
             <CardTitle>Join the wait list</CardTitle>
             <CardDescription>
