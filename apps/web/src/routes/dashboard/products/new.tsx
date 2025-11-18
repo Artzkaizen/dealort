@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import type React from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
@@ -8,6 +10,38 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const X_URL_REGEX = /^https:\/\/(twitter\.com|x\.com)\//;
+const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/.*$/;
+
+export const categories: string[] = [
+  "AI",
+  "SaaS",
+  "Web App",
+  "Mobile App",
+  "Productivity",
+  "Developer Tools",
+  "Open Source",
+  "E-commerce",
+  "Fintech",
+  "HealthTech",
+  "EdTech",
+  "Marketing",
+  "Design",
+  "Gaming",
+  "Cybersecurity",
+  "IoT",
+  "Blockchain",
+  "Hardware",
+  "Social",
+  "Cloud",
+  "Analytics",
+  "VR/AR",
+  "Marketplace",
+  "Remote Work",
+  "API",
+  "No-Code",
+];
 
 export const Route = createFileRoute("/dashboard/products/new")({
   component: RouteComponent,
@@ -18,9 +52,53 @@ const getStartedForm = z.object({
   isDev: z.boolean(),
 });
 
-const productInformationForm = z.object({
-  name: z.string("Type product name"),
-});
+const productInformationForm = z
+  .object({
+    name: z.string("Type product name").max(40, "Product name is too long"),
+    tagline: z.string("Type product name").max(60, "Product name is too long"),
+    category: z.array(z.string()),
+    xUrl: z
+      .string()
+      .url("Please enter a valid X (Twitter) URL")
+      .refine((val) => val === "" || X_URL_REGEX.test(val), {
+        message: "Please enter a valid X (Twitter) profile link",
+      }),
+    linkedinUrl: z
+      .string()
+      .optional()
+      .refine((val) => !val || LINKEDIN_REGEX.test(val), {
+        message: "Please enter a valid LinkedIn URL",
+      }),
+    links: z
+      .array(
+        z.object({
+          url: z.string().url("Please enter a valid URL"),
+        })
+      )
+      .optional(),
+    isOpenSource: z.boolean(),
+    sourceCodeUrl: z
+      .string()
+      .url("Please enter a valid source code repository URL")
+      .optional()
+      .or(z.literal("")),
+    description: z
+      .string()
+      .max(600, "Description cannot exceed 600 characters")
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.isOpenSource) {
+        return !!data.sourceCodeUrl && data.sourceCodeUrl !== "";
+      }
+      return true;
+    },
+    {
+      message: "Source code link is required if the product is open source.",
+      path: ["sourceCodeUrl"],
+    }
+  );
 
 const productConfirmationForm = z.object({
   name: z.string("Type product name"),
@@ -58,6 +136,15 @@ function RouteComponent() {
         url: "https://",
         isDev: false,
       },
+      productInformation: {
+        name: "",
+        tagline: "",
+        description: "",
+        logo: "",
+        category: "",
+        isOpenSource: false,
+        sourceCodeUrl: "",
+      },
     },
     validators: {
       onSubmit: productFormSchema,
@@ -82,7 +169,7 @@ function RouteComponent() {
   });
 
   const [formStep, setFormStep] = useState<FormStep | undefined>(
-    formCollection[0]
+    formCollection[1]
   );
   const [isTransitioning, setIsTransitioning] = useState(false); // New state for loader
 
@@ -154,14 +241,20 @@ function RouteComponent() {
                   <form.Field name="getStarted.url">
                     {(field) => (
                       <div className="space-y-2">
-                        <Label htmlFor={field.name}>Product link</Label>
+                        <Label
+                          className="text-xs sm:text-sm"
+                          htmlFor={field.name}
+                        >
+                          Product link
+                        </Label>
                         <Input
                           id={field.name}
+                          inputMode="url"
                           name={field.name}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="https://www.dealort.com"
-                          type="text"
+                          type="url"
                           value={field.state.value}
                         />
                         {field.state.meta.errors.map((error) => (
@@ -207,6 +300,32 @@ function RouteComponent() {
               </div>
             )}
 
+            {formStep?.step === 2 && (
+              <div>
+                <div className="flex flex-col gap-2">
+                  <h1 className="text-3xl sm:text-4xl">
+                    Describe your project
+                  </h1>
+                  <p className="font-light text-xs sm:text-sm">
+                    We need a concise information about your product
+                  </p>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-7">
+                  <div className="flex flex-col gap-4">
+                    <form.Field name="productInformation.name">
+                      {(field) => (
+                        <TextField
+                          label="Name of Product"
+                          maxLength={40}
+                          name="productInformation.name"
+                        />
+                      )}
+                    </form.Field>
+                  </div>
+                </div>
+              </div>
+            )}
             <div>
               <Button
                 className="mt-4 size-fit w-full rounded-full px-16"
@@ -239,5 +358,72 @@ function RouteComponent() {
         <h1 className="text-8xl text-foreground opacity-5">Dealort</h1>
       </aside>
     </main>
+  );
+}
+
+interface FormFieldProps {
+  label: string;
+  name: string;
+  maxLength?: number;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  helperText?: string;
+  className?: string;
+  type?: string;
+  infoTooltip?: ReactNode;
+  disabled?: boolean;
+  required?: boolean;
+}
+
+export function TextField({
+  label,
+  name,
+  maxLength,
+  value,
+  onChange,
+  placeholder,
+  helperText,
+  className = "",
+  type = "text",
+  infoTooltip,
+  disabled = false,
+  required = false,
+}: FormFieldProps) {
+  return (
+    <div className={`mb-4 w-full ${className}`}>
+      <div className="flex items-center justify-between">
+        <Label
+          className="mb-1 block font-medium text-foreground text-xs sm:text-sm"
+          htmlFor={name}
+        >
+          {label}
+          {/* {required ? <span className="text-destructive">*</span> : null} */}
+        </Label>
+        <div className="flex items-center gap-1">
+          {maxLength != null && (
+            <span className="text-muted-foreground text-xs">
+              {value?.length ?? 0}/{maxLength}
+            </span>
+          )}
+          {infoTooltip}
+        </div>
+      </div>
+      <Input
+        className="w-full rounded border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1"
+        disabled={disabled}
+        id={name}
+        maxLength={maxLength}
+        name={name}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        type={type}
+        value={value || ""}
+      />
+      {helperText && (
+        <div className="mt-1 text-muted-foreground text-xs">{helperText}</div>
+      )}
+    </div>
   );
 }
