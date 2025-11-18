@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const X_URL_REGEX = /^https:\/\/(twitter\.com|x\.com)\//;
 const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/.*$/;
@@ -316,9 +317,16 @@ function RouteComponent() {
                     <form.Field name="productInformation.name">
                       {(field) => (
                         <TextField
+                          inputType="textarea"
                           label="Name of Product"
                           maxLength={40}
-                          name="productInformation.name"
+                          name={field.name}
+                          onBlur={field.handleBlur}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            field.handleChange(e.target.value)
+                          }
+                          placeholder="The name of the product you would launch "
+                          value={field.state.value}
                         />
                       )}
                     </form.Field>
@@ -361,40 +369,36 @@ function RouteComponent() {
   );
 }
 
-interface FormFieldProps {
+interface TextFieldProps
+  extends React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label: string;
   name: string;
   maxLength?: number;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
+  placeholder: string;
+  value: string;
   helperText?: string;
   className?: string;
-  type?: string;
   infoTooltip?: ReactNode;
-  disabled?: boolean;
-  required?: boolean;
+  inputType: "input" | "textarea";
 }
 
 export function TextField({
   label,
   name,
   maxLength,
-  value,
-  onChange,
   placeholder,
   helperText,
   className = "",
-  type = "text",
   infoTooltip,
-  disabled = false,
-  required = false,
-}: FormFieldProps) {
+  value,
+  inputType = "input",
+  ...props
+}: TextFieldProps) {
   return (
     <div className={`mb-4 w-full ${className}`}>
       <div className="flex items-center justify-between">
         <Label
-          className="mb-1 block font-medium text-foreground text-xs sm:text-sm"
+          className="mb-1 block text-foreground text-xs sm:text-sm"
           htmlFor={name}
         >
           {label}
@@ -409,18 +413,32 @@ export function TextField({
           {infoTooltip}
         </div>
       </div>
-      <Input
-        className="w-full rounded border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1"
-        disabled={disabled}
-        id={name}
-        maxLength={maxLength}
-        name={name}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        type={type}
-        value={value || ""}
-      />
+
+      {inputType === "input" && (
+        <Input
+          className="w-full rounded border border-border px-3 py-2 text-sm focus:border-ring focus:outline-none focus:ring-1"
+          id={name}
+          inputMode="text"
+          maxLength={maxLength}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          {...props}
+        />
+      )}
+
+      {inputType === "textarea" && (
+        <Textarea
+          className="w-full rounded border border-border px-3 py-2 text-sm"
+          id={name}
+          inputMode="text"
+          maxLength={maxLength}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          {...props}
+        />
+      )}
       {helperText && (
         <div className="mt-1 text-muted-foreground text-xs">{helperText}</div>
       )}
