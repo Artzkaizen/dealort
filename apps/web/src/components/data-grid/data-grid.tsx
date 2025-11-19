@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/useSemanticElements: we need to use div for the grid */
+/** biome-ignore-all lint/style/noNestedTernary: we need to use ternary operators for the grid */
 "use client";
 
 import { flexRender } from "@tanstack/react-table";
@@ -95,6 +97,7 @@ export function DataGrid<TData>({
               role="row"
               tabIndex={-1}
             >
+              {/** biome-ignore lint/complexity/noExcessiveCognitiveComplexity: we need to map the headers */}
               {headerGroup.headers.map((header, colIndex) => {
                 const sorting = table.getState().sorting;
                 const currentSort = sorting.find(
