@@ -44,6 +44,7 @@
         "@dealort/api": "workspace:*",
         "@dealort/auth": "workspace:*",
         "@diceui/combobox": "^1.2.2",
+        "@diceui/tags-input": "^0.7.2",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/modifiers": "^9.0.0",
         "@dnd-kit/sortable": "^10.0.0",
@@ -276,6 +277,8 @@
     "@diceui/combobox": ["@diceui/combobox@1.2.2", "https://registry.npmmirror.com/@diceui/combobox/-/combobox-1.2.2.tgz", { "dependencies": { "@diceui/shared": "0.12.0", "@floating-ui/react": "^0.27.4" }, "peerDependencies": { "@types/react": "*", "@types/react-dom": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-eLagbQr+1u1xGW/YSmTqjvxJ/lBAU1RLUYn1SsI0T9Wnzi3D9fbXTVuhoRYx29Z2ne/+RzVZXzcu3HdqdMHo1A=="],
 
     "@diceui/shared": ["@diceui/shared@0.12.0", "https://registry.npmmirror.com/@diceui/shared/-/shared-0.12.0.tgz", { "peerDependencies": { "@floating-ui/react": "^0.27.4", "@types/react": "*", "@types/react-dom": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-aJ+gxHTleFD8b9DgXOb7G0sHymW8nMK4C3KXDMca4+PPl1NsfRG/Lnb2dN8vq44XOb/W7Wjn3gmgakXAOzgrJA=="],
+
+    "@diceui/tags-input": ["@diceui/tags-input@0.7.2", "https://registry.npmmirror.com/@diceui/tags-input/-/tags-input-0.7.2.tgz", { "dependencies": { "@diceui/shared": "0.12.0" }, "peerDependencies": { "@types/react": "*", "@types/react-dom": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc", "react-dom": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react", "@types/react-dom"] }, "sha512-QCZ7RSoTUXf7UCMruPEf+X9msHAmf4DgzupDKuyt3EfgMAhba9jGyZ+Wx0UJXxRJlycHX9/g9gIVF7rTiG04sg=="],
 
     "@dnd-kit/accessibility": ["@dnd-kit/accessibility@3.1.1", "https://registry.npmmirror.com/@dnd-kit/accessibility/-/accessibility-3.1.1.tgz", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0" } }, "sha512-2P+YgaXF+gRsIihwwY1gCsQSYnu9Zyj2py8kY5fFvUM1qm2WA2u639R6YNVfU4GWr+ZM5mqEsfHZZLoRONbemw=="],
 

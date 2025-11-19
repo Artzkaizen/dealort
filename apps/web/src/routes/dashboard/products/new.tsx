@@ -1,14 +1,30 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, InfoIcon } from "lucide-react";
+import { ArrowLeft, ChevronDown, InfoIcon } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Combobox,
+  ComboboxAnchor,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxTrigger,
+} from "@/components/ui/dice-combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  TagsInput,
+  TagsInputInput,
+  TagsInputItem,
+} from "@/components/ui/tags-input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -18,35 +34,6 @@ import {
 
 const X_URL_REGEX = /^https:\/\/(twitter\.com|x\.com)\//;
 const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/.*$/;
-
-export const categories: string[] = [
-  "AI",
-  "SaaS",
-  "Web App",
-  "Mobile App",
-  "Productivity",
-  "Developer Tools",
-  "Open Source",
-  "E-commerce",
-  "Fintech",
-  "HealthTech",
-  "EdTech",
-  "Marketing",
-  "Design",
-  "Gaming",
-  "Cybersecurity",
-  "IoT",
-  "Blockchain",
-  "Hardware",
-  "Social",
-  "Cloud",
-  "Analytics",
-  "VR/AR",
-  "Marketplace",
-  "Remote Work",
-  "API",
-  "No-Code",
-];
 
 export const Route = createFileRoute("/dashboard/products/new")({
   component: RouteComponent,
@@ -425,12 +412,42 @@ function RouteComponent() {
                         </div>
                       )}
                     </form.Field>
+
+                    <form.Field name="productInformation.category">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <CategoriesCombobox
+                            name={field.name}
+                            onBlur={field.handleBlur}
+                            onChange={field.handleChange}
+                            value={field.state.value}
+                          />
+
+                          {field.state.meta.errors.map((error) => (
+                            <p
+                              className="text-red-500 text-xs"
+                              key={
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            >
+                              {
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </form.Field>
                   </div>
 
                   <hr className="border border-secondary" />
 
                   <div className="flex flex-col gap-2">
                     <h1 className="text-xl sm:text-3xl">Links</h1>
+
+                    <div className="flex flex-col gap-4" />
                   </div>
                 </div>
               </div>
@@ -554,5 +571,91 @@ export function TextField({
         <div className="mt-1 text-muted-foreground text-xs">{helperText}</div>
       )}
     </div>
+  );
+}
+
+export const categories: string[] = [
+  "AI",
+  "SaaS",
+  "Web App",
+  "Mobile App",
+  "Productivity",
+  "Developer Tools",
+  "Open Source",
+  "E-commerce",
+  "Fintech",
+  "HealthTech",
+  "EdTech",
+  "Marketing",
+  "Design",
+  "Gaming",
+  "Cybersecurity",
+  "IoT",
+  "Blockchain",
+  "Hardware",
+  "Social",
+  "Cloud",
+  "Analytics",
+  "VR/AR",
+  "Marketplace",
+  "Remote Work",
+  "API",
+  "No-Code",
+];
+
+interface ComboboxFieldProps {
+  name: string;
+  value: string[];
+  onChange: (value: string[]) => void;
+  onBlur: () => void;
+  className?: string;
+}
+
+export function CategoriesCombobox({
+  name,
+  onChange,
+  onBlur,
+}: ComboboxFieldProps) {
+  const [currentValue, setCurrentValue] = useState<string[]>([]);
+
+  useEffect(() => {
+    onChange(currentValue);
+  }, [currentValue, onChange]);
+
+  return (
+    <Combobox multiple onValueChange={setCurrentValue} value={currentValue}>
+      <ComboboxAnchor asChild>
+        <TagsInput
+          className="relative flex h-full min-h-10 w-full flex-row flex-wrap items-center justify-start gap-1.5 px-2.5 py-2"
+          name={name}
+          onBlur={onBlur}
+          onValueChange={setCurrentValue}
+          value={currentValue}
+        >
+          {currentValue.map((item) => (
+            <TagsInputItem key={item} value={item}>
+              {item}
+            </TagsInputItem>
+          ))}
+          <ComboboxInput asChild className="h-fit flex-1 p-0">
+            <TagsInputInput placeholder="Categories..." />
+          </ComboboxInput>
+          <ComboboxTrigger className="absolute top-2.5 right-2">
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </ComboboxTrigger>
+        </TagsInput>
+      </ComboboxAnchor>
+      <ComboboxContent className="max-h-52 overflow-y-auto" sideOffset={5}>
+        <ComboboxEmpty>No category found.</ComboboxEmpty>
+        <ComboboxGroup>
+          <ComboboxGroupLabel>Category</ComboboxGroupLabel>
+          {categories.map((category) => (
+            <ComboboxItem key={category} outset value={category}>
+              {category}
+            </ComboboxItem>
+          ))}
+        </ComboboxGroup>
+      </ComboboxContent>
+    </Combobox>
   );
 }
