@@ -1,8 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, InfoIcon } from "lucide-react";
 import type React from "react";
-import type { ReactNode } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
@@ -11,6 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const X_URL_REGEX = /^https:\/\/(twitter\.com|x\.com)\//;
 const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/.*$/;
@@ -261,9 +265,15 @@ function RouteComponent() {
                         {field.state.meta.errors.map((error) => (
                           <p
                             className="text-red-500 text-xs"
-                            key={error?.message}
+                            key={
+                              (error as unknown as { message?: string })
+                                ?.message
+                            }
                           >
-                            {error?.message}
+                            {
+                              (error as unknown as { message?: string })
+                                ?.message
+                            }
                           </p>
                         ))}
                       </div>
@@ -316,20 +326,111 @@ function RouteComponent() {
                   <div className="flex flex-col gap-4">
                     <form.Field name="productInformation.name">
                       {(field) => (
-                        <TextField
-                          inputType="textarea"
-                          label="Name of Product"
-                          maxLength={40}
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            field.handleChange(e.target.value)
-                          }
-                          placeholder="The name of the product you would launch "
-                          value={field.state.value}
-                        />
+                        <div className="space-y-2">
+                          <TextField
+                            inputType="input"
+                            label="Name of Product"
+                            maxLength={40}
+                            name={field.name}
+                            onBlur={field.handleBlur}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => field.handleChange(e.target.value)}
+                            placeholder="The name of the product you would launch "
+                            value={field.state.value}
+                          />
+
+                          {field.state.meta.errors.map((error) => (
+                            <p
+                              className="text-red-500 text-xs"
+                              key={
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            >
+                              {
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </form.Field>
+
+                    <form.Field name="productInformation.tagline">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <TextField
+                            infoTooltip="A short formal description"
+                            inputType="input"
+                            label="Tagline"
+                            maxLength={60}
+                            name={field.name}
+                            onBlur={field.handleBlur}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => field.handleChange(e.target.value)}
+                            placeholder="The name of the product you would launch "
+                            value={field.state.value}
+                          />
+                          {field.state.meta.errors.map((error) => (
+                            <p
+                              className="text-red-500 text-xs"
+                              key={
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            >
+                              {
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </form.Field>
+
+                    <form.Field name="productInformation.description">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <TextField
+                            infoTooltip="Describe your project in detail, what it is all about and what makes you stand out from the crowd"
+                            inputType="textarea"
+                            label="Description"
+                            maxLength={600}
+                            name={field.name}
+                            onBlur={field.handleBlur}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) => field.handleChange(e.target.value)}
+                            placeholder="The name of the product you would launch "
+                            value={field.state.value}
+                          />
+                          {field.state.meta.errors.map((error) => (
+                            <p
+                              className="text-red-500 text-xs"
+                              key={
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            >
+                              {
+                                (error as unknown as { message?: string })
+                                  ?.message
+                              }
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </form.Field>
+                  </div>
+
+                  <hr className="border border-secondary" />
+
+                  <div className="flex flex-col gap-2">
+                    <h1 className="text-xl sm:text-3xl">Links</h1>
                   </div>
                 </div>
               </div>
@@ -337,7 +438,7 @@ function RouteComponent() {
             <div>
               <Button
                 className="mt-4 size-fit w-full rounded-full px-16"
-                disabled={false}
+                disabled={isTransitioning}
                 onClick={handleProceed}
                 type={formStep?.step === 1 ? "submit" : "button"}
               >
@@ -378,7 +479,7 @@ interface TextFieldProps
   value: string;
   helperText?: string;
   className?: string;
-  infoTooltip?: ReactNode;
+  infoTooltip?: string;
   inputType: "input" | "textarea";
 }
 
@@ -397,20 +498,30 @@ export function TextField({
   return (
     <div className={`mb-4 w-full ${className}`}>
       <div className="flex items-center justify-between">
-        <Label
-          className="mb-1 block text-foreground text-xs sm:text-sm"
-          htmlFor={name}
-        >
-          {label}
-          {/* {required ? <span className="text-destructive">*</span> : null} */}
-        </Label>
+        <div className="flex items-center gap-px">
+          <Label
+            className="mb-1 block text-foreground text-xs sm:text-sm"
+            htmlFor={name}
+          >
+            {label}
+            {/* {required ? <span className="text-destructive">*</span> : null} */}
+          </Label>
+
+          {infoTooltip && (
+            <Tooltip>
+              <TooltipTrigger className="size-fit [&>svg]:size-3">
+                <InfoIcon />
+              </TooltipTrigger>
+              <TooltipContent>{infoTooltip}</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           {maxLength != null && (
             <span className="text-muted-foreground text-xs">
               {value?.length ?? 0}/{maxLength}
             </span>
           )}
-          {infoTooltip}
         </div>
       </div>
 
