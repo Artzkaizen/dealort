@@ -32,8 +32,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const X_URL_REGEX = /^https:\/\/(twitter\.com|x\.com)\//;
-const LINKEDIN_REGEX = /^https:\/\/(www\.)?linkedin\.com\/.*$/;
+const X_URL_REGEX = /^[a-zA-Z0-9_]+$/;
+const LINKEDIN_REGEX = /^[a-zA-Z0-9_-]+$/;
 
 export const Route = createFileRoute("/dashboard/products/new")({
   component: RouteComponent,
@@ -48,36 +48,32 @@ const productInformationForm = z
   .object({
     name: z.string("Type product name").max(40, "Product name is too long"),
     tagline: z.string("Type product name").max(60, "Product name is too long"),
-    category: z.array(z.string()),
-    xUrl: z
+    description: z
       .string()
-      .url("Please enter a valid X (Twitter) URL")
-      .refine((val) => val === "" || X_URL_REGEX.test(val), {
-        message: "Please enter a valid X (Twitter) profile link",
-      }),
+      .max(600, "Description cannot exceed 600 characters"),
+    category: z.array(z.string()),
+    xUrl: z.string().refine((val) => val === "" || X_URL_REGEX.test(val), {
+      message: "Please enter a valid X profile username",
+    }),
     linkedinUrl: z
       .string()
       .optional()
       .refine((val) => !val || LINKEDIN_REGEX.test(val), {
         message: "Please enter a valid LinkedIn URL",
       }),
-    links: z
-      .array(
-        z.object({
-          url: z.string().url("Please enter a valid URL"),
-        })
-      )
-      .optional(),
+    // links: z
+    //   .array(
+    //     z.object({
+    //       url: z.string().url("Please enter a valid URL"),
+    //     })
+    //   )
+    //   .optional(),
     isOpenSource: z.boolean(),
     sourceCodeUrl: z
       .string()
       .url("Please enter a valid source code repository URL")
       .optional()
       .or(z.literal("")),
-    description: z
-      .string()
-      .max(600, "Description cannot exceed 600 characters")
-      .optional(),
   })
   .refine(
     (data) => {
@@ -103,7 +99,7 @@ const productFormSchema = z.object({
   productConfirmation: productConfirmationForm,
 });
 
-type NewProductForm = z.infer<typeof productFormSchema>;
+// type NewProductForm = z.infer<typeof productFormSchema>;
 
 const formCollection = [
   {
@@ -132,10 +128,11 @@ function RouteComponent() {
         name: "",
         tagline: "",
         description: "",
-        logo: "",
         category: "",
+        xUrl: "",
+        linkedinUrl: "",
         isOpenSource: false,
-        sourceCodeUrl: "",
+        sourceCodeUrl: "https://",
       },
     },
     validators: {
@@ -164,6 +161,7 @@ function RouteComponent() {
     formCollection[1]
   );
   const [isTransitioning, setIsTransitioning] = useState(false); // New state for loader
+  const [isOpenSourced, setIsOpenSourced] = useState(false); // New state for loader
 
   console.log(form.fieldInfo.getStarted);
 
@@ -309,7 +307,7 @@ function RouteComponent() {
                   </p>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-7">
+                <div className="mt-6 flex flex-col gap-10">
                   <div className="flex flex-col gap-4">
                     <form.Field name="productInformation.name">
                       {(field) => (
@@ -447,7 +445,165 @@ function RouteComponent() {
                   <div className="flex flex-col gap-2">
                     <h1 className="text-xl sm:text-3xl">Links</h1>
 
-                    <div className="flex flex-col gap-4" />
+                    <div className="flex flex-col gap-7">
+                      <form.Field name="productInformation.xUrl">
+                        {(field) => (
+                          <div className="space-y-2">
+                            <Label
+                              className="text-xs sm:text-sm"
+                              htmlFor={field.name}
+                            >
+                              X account of the project
+                            </Label>
+                            <div className="flex items-center">
+                              <span className="h-full rounded-s-lg border bg-sidebar px-1 py-2.5 text-xs shadow-sm">
+                                x.com/@
+                              </span>
+                              <Input
+                                className="rounded-s-none"
+                                id={field.name}
+                                inputMode="text"
+                                name={field.name}
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                placeholder="username"
+                                type="text"
+                                value={field.state.value}
+                              />
+                            </div>
+                            {field.state.meta.errors.map((error) => (
+                              <p
+                                className="text-red-500 text-xs"
+                                key={
+                                  (error as unknown as { message?: string })
+                                    ?.message
+                                }
+                              >
+                                {
+                                  (error as unknown as { message?: string })
+                                    ?.message
+                                }
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </form.Field>
+
+                      <form.Field name="productInformation.linkedinUrl">
+                        {(field) => (
+                          <div className="space-y-2">
+                            <Label
+                              className="text-xs sm:text-sm"
+                              htmlFor={field.name}
+                            >
+                              Linkedin (optional)
+                            </Label>
+                            <div className="flex items-center">
+                              <span className="h-full rounded-s-lg border bg-sidebar px-1 py-2.5 text-xs shadow-sm">
+                                linkedin.com/company/
+                              </span>
+                              <Input
+                                className="rounded-s-none"
+                                id={field.name}
+                                inputMode="text"
+                                name={field.name}
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                placeholder="company-name"
+                                type="text"
+                                value={field.state.value}
+                              />
+                            </div>
+                            {field.state.meta.errors.map((error) => (
+                              <p
+                                className="text-red-500 text-xs"
+                                key={
+                                  (error as unknown as { message?: string })
+                                    ?.message
+                                }
+                              >
+                                {
+                                  (error as unknown as { message?: string })
+                                    ?.message
+                                }
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </form.Field>
+
+                      <div className="flex flex-col gap-2 rounded-lg border p-3 hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
+                        <form.Field name="productInformation.isOpenSource">
+                          {(field) => (
+                            <div className="flex w-full items-center space-x-2">
+                              <Label className="flex w-full items-center gap-1 *:text-light">
+                                <Checkbox
+                                  checked={field.state.value}
+                                  className="h-4 w-4"
+                                  id={field.name}
+                                  name={field.name}
+                                  onCheckedChange={(checked) => {
+                                    field.handleChange(checked === true);
+                                    setIsOpenSourced(checked === true);
+                                  }}
+                                />
+
+                                <div className="flex flex-col gap-1">
+                                  <p className="text-sm">
+                                    is project open source?
+                                  </p>
+                                </div>
+                              </Label>
+                            </div>
+                          )}
+                        </form.Field>
+
+                        {isOpenSourced && (
+                          <form.Field name="productInformation.sourceCodeUrl">
+                            {(field) => (
+                              <div className="space-y-2">
+                                <Label
+                                  className="font-extralight text-xs"
+                                  htmlFor={field.name}
+                                >
+                                  Github, Gitlab or Bitbucket
+                                </Label>
+                                <Input
+                                  id={field.name}
+                                  inputMode="url"
+                                  name={field.name}
+                                  onBlur={field.handleBlur}
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                  }
+                                  placeholder="https://www.dealort.com"
+                                  type="url"
+                                  value={field.state.value}
+                                />
+                                {field.state.meta.errors.map((error) => (
+                                  <p
+                                    className="text-red-500 text-xs"
+                                    key={
+                                      (error as unknown as { message?: string })
+                                        ?.message
+                                    }
+                                  >
+                                    {
+                                      (error as unknown as { message?: string })
+                                        ?.message
+                                    }
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                          </form.Field>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
