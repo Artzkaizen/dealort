@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, ChevronDown, InfoIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -78,7 +78,9 @@ export const Route = createFileRoute("/dashboard/products/new")({
 });
 
 const getStartedForm = z.object({
-  url: z.url("Please enter a valid URL"),
+  url: z.url("").refine((val) => !val || URL_REGEX.test(val), {
+    message: "Please enter a valid URL",
+  }),
   isDev: z.boolean(),
 });
 
@@ -112,7 +114,11 @@ const productInformationForm = z
     isOpenSource: z.boolean(),
     sourceCodeUrl: z
       .url("Please enter a valid source code repository URL")
-      .or(z.literal("")),
+      .or(z.literal(""))
+      .refine((val) => !val || URL_REGEX.test(val), {
+        message: "Please enter a valid source code link",
+      })
+      .optional(),
   })
   .refine(
     (data) => {
@@ -186,9 +192,9 @@ const formSteps = [
     ] as const,
   },
   {
-    value: "review",
-    title: "Review",
-    description: "Review your information",
+    value: "media",
+    title: "Media contents",
+    description: "Logos and other images",
     fields: [] as const,
   },
 ] as const;
@@ -611,7 +617,7 @@ function RouteComponent() {
                                   />
                                 </InputGroup>
                               </FormControl>
-                              <FormMessage className="mt-4" />
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -748,177 +754,7 @@ function RouteComponent() {
                     )}
                   </div>
                 </div>
-
-                {/* {formStep?.step === 2 && (
-              <div>
-                <div className="flex flex-col gap-2">
-                  <h1 className="text-3xl sm:text-4xl">
-                    Describe your project
-                  </h1>
-                  <p className="font-light text-xs sm:text-sm">
-                    We need a concise information about your product
-                  </p>
-                </div>
-
-                <FieldGroup className="mt-6">
-                
-
-                  <FieldSeparator />
-
-                  <FieldSet>
-                    <FieldLegend className="text-xl sm:text-3xl">
-                      Links
-                    </FieldLegend>
-                    <FieldGroup>
-                      <form.Field name="productInformation.xUrl">
-                        {(field) => (
-                          <Field
-                            data-invalid={field.state.meta.errors.length > 0}
-                          >
-                            <FieldLabel
-                              className="text-xs sm:text-sm"
-                              htmlFor={field.name}
-                            >
-                              X account of the project
-                            </FieldLabel>
-
-                            <InputGroup>
-                              <InputGroupAddon>
-                                <InputGroupText>x.com/</InputGroupText>
-                              </InputGroupAddon>
-                              <InputGroupInput
-                                aria-invalid={
-                                  field.state.meta.errors.length > 0
-                                }
-                                className="pl-0.5!"
-                                id={field.name}
-                                inputMode="text"
-                                name={field.name}
-                                onBlur={field.handleBlur}
-                                onChange={(e) =>
-                                  field.handleChange(
-                                    `https://x.com/${e.target.value}`
-                                  )
-                                }
-                                placeholder="dealort"
-                              />
-                            </InputGroup>
-                            <FieldError errors={field.state.meta.errors} />
-                          </Field>
-                        )}
-                      </form.Field>
-
-                      <form.Field name="productInformation.linkedinUrl">
-                        {(field) => (
-                          <Field
-                            data-invalid={field.state.meta.errors.length > 0}
-                          >
-                            <FieldLabel
-                              className="text-xs sm:text-sm"
-                              htmlFor={field.name}
-                            >
-                              Linkedin (optional)
-                            </FieldLabel>
-
-                            <InputGroup>
-                              <InputGroupAddon>
-                                <InputGroupText>
-                                  linkedin.com/company/
-                                </InputGroupText>
-                              </InputGroupAddon>
-                              <InputGroupInput
-                                aria-invalid={
-                                  field.state.meta.errors.length > 0
-                                }
-                                className="pl-0.5!"
-                                id={field.name}
-                                inputMode="text"
-                                name={field.name}
-                                onBlur={field.handleBlur}
-                                onChange={(e) =>
-                                  field.handleChange(
-                                    `https://linkedin.com/company/${e.target.value}`
-                                  )
-                                }
-                                placeholder="dealort"
-                              />
-                            </InputGroup>
-                            <FieldError errors={field.state.meta.errors} />
-                          </Field>
-                        )}
-                      </form.Field>
-
-                      <Field className="flex flex-col gap-2 rounded-lg border p-3 hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
-                        <form.Field name="productInformation.isOpenSource">
-                          {(field) => (
-                            <Field orientation="horizontal">
-                              <Checkbox
-                                checked={field.state.value}
-                                className="h-4 w-4"
-                                id={field.name}
-                                name={field.name}
-                                onCheckedChange={(checked) => {
-                                  field.handleChange(checked === true);
-                                  setIsOpenSourced(checked === true);
-                                }}
-                              />
-                              <FieldLabel
-                                className="font-normal"
-                                htmlFor={field.name}
-                              >
-                                is project open source?
-                              </FieldLabel>
-                            </Field>
-                          )}
-                        </form.Field>
-
-                        {isOpenSourced && (
-                          <form.Field name="productInformation.sourceCodeUrl">
-                            {(field) => (
-                              <Field
-                                data-invalid={
-                                  field.state.meta.errors.length > 0
-                                }
-                              >
-                                <FieldLabel
-                                  className="font-extralight text-xs"
-                                  htmlFor={field.name}
-                                >
-                                  Github, Gitlab or Bitbucket
-                                </FieldLabel>
-                                <InputGroup>
-                                  <InputGroupAddon>
-                                    <InputGroupText>https://</InputGroupText>
-                                  </InputGroupAddon>
-                                  <InputGroupInput
-                                    aria-invalid={
-                                      field.state.meta.errors.length > 0
-                                    }
-                                    className="pl-0.5!"
-                                    id={field.name}
-                                    inputMode="text"
-                                    name={field.name}
-                                    onBlur={field.handleBlur}
-                                    onChange={(e) =>
-                                      field.handleChange(
-                                        `https://${e.target.value}`
-                                      )
-                                    }
-                                    placeholder="dealort"
-                                  />
-                                </InputGroup>
-                                <FieldError errors={field.state.meta.errors} />
-                              </Field>
-                            )}
-                          </form.Field>
-                        )}
-                      </Field>
-                    </FieldGroup>
-                  </FieldSet>
-                </FieldGroup>
-              </div>
-            )}
-
+                {/*
             {formStep?.step === 3 && (
               <div className="flex flex-col gap-2">
                 <h1 className="text-3xl sm:text-4xl">
@@ -1217,9 +1053,13 @@ export function CategoriesCombobox({
 }: ComboboxFieldProps) {
   const [currentValue, setCurrentValue] = useState<string[]>([]);
 
-  // useEffect(() => {
-  //   onChange(currentValue);
-  // }, [currentValue, onChange]);
+  useEffect(() => {
+    const handleChange = () => {
+      onChange(currentValue);
+    };
+
+    handleChange();
+  }, [currentValue]);
 
   return (
     <Combobox multiple onValueChange={setCurrentValue} value={currentValue}>
