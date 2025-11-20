@@ -1,8 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ChevronDown, InfoIcon } from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,25 @@ import {
   ComboboxGroupLabel,
   ComboboxInput,
   ComboboxItem,
-  ComboboxLabel,
   ComboboxTrigger,
 } from "@/components/ui/dice-combobox";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 import {
   TagsInput,
   TagsInputInput,
@@ -41,39 +55,34 @@ export const Route = createFileRoute("/dashboard/products/new")({
 });
 
 const getStartedForm = z.object({
-  url: z.string().url("Please enter a valid URL"),
+  url: z.url("Please enter a valid URL"),
   isDev: z.boolean(),
 });
 
 const productInformationForm = z
   .object({
-    name: z.string("Type product name").max(40, "Product name is too long"),
-    tagline: z.string("Type product name").max(60, "Product name is too long"),
+    name: z
+      .string()
+      .min(1, "Type product name")
+      .max(40, "Product name is too long"),
+    tagline: z.string().min(1, "Type tagline").max(60, "Tagline is too long"),
     description: z
       .string()
+      .min(1, "Type description")
       .max(600, "Description cannot exceed 600 characters"),
-    category: z.array(z.string()),
+    category: z.array(z.string()).min(1, "Please select at least one category"),
     xUrl: z.string().refine((val) => val === "" || X_URL_REGEX.test(val), {
       message: "Please enter a valid X profile username",
     }),
     linkedinUrl: z
       .string()
-      .optional()
       .refine((val) => !val || LINKEDIN_REGEX.test(val), {
-        message: "Please enter a valid LinkedIn URL",
-      }),
-    // links: z
-    //   .array(
-    //     z.object({
-    //       url: z.string().url("Please enter a valid URL"),
-    //     })
-    //   )
-    //   .optional(),
+        message: "Please enter a valid LinkedIn username",
+      })
+      .or(z.literal("")),
     isOpenSource: z.boolean(),
     sourceCodeUrl: z
-      .string()
       .url("Please enter a valid source code repository URL")
-      .optional()
       .or(z.literal("")),
   })
   .refine(
@@ -89,33 +98,41 @@ const productInformationForm = z
     }
   );
 
-const productConfirmationForm = z.object({
-  name: z.string("Type product name"),
-});
+const createProductConfirmationForm = (productName: string) =>
+  z.object({
+    name: z
+      .string()
+      .min(1, "Type product name")
+      .refine((val) => val === productName, {
+        message: "Product name does not match",
+      }),
+  });
 
-// Full staff form schema
+// Full form schema - note: confirmation validation is dynamic
 const productFormSchema = z.object({
   getStarted: getStartedForm,
   productInformation: productInformationForm,
-  productConfirmation: productConfirmationForm,
+  productConfirmation: z.object({
+    name: z.string().min(1, "Type product name"),
+  }),
 });
 
 // type NewProductForm = z.infer<typeof productFormSchema>;
 
 const formCollection = [
   {
-    key: "get started" as const,
+    key: "get started",
     step: 1,
   },
   {
-    key: "product information" as const,
+    key: "product information",
     step: 2,
   },
   {
-    key: "product confirmation" as const,
+    key: "product confirmation",
     step: 3,
   },
-];
+] as const;
 type FormStep = (typeof formCollection)[number];
 
 function RouteComponent() {
@@ -129,11 +146,14 @@ function RouteComponent() {
         name: "",
         tagline: "",
         description: "",
-        category: "",
+        category: [] as string[],
         xUrl: "",
         linkedinUrl: "",
         isOpenSource: false,
         sourceCodeUrl: "https://",
+      },
+      productConfirmation: {
+        name: "",
       },
     },
     validators: {
@@ -160,48 +180,82 @@ function RouteComponent() {
   });
 
   const [formStep, setFormStep] = useState<FormStep | undefined>(
-    formCollection[1]
+    formCollection[0]
   );
-  const [isTransitioning, setIsTransitioning] = useState(false); // New state for loader
-  const [isOpenSourced, setIsOpenSourced] = useState(false); // New state for loader
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isOpenSourced, setIsOpenSourced] = useState(false);
 
-  console.log(form.fieldInfo.getStarted);
+  // Validate current step before proceeding
+  const validateStep = async (step: number): Promise<boolean> => {
+    if (step === 1) {
+      // Validate getStarted section
+      const result = getStartedForm.safeParse(form.state.values.getStarted);
+      if (!result.success) {
+        // Trigger validation errors
+        form.validateAllFields("change");
+        return false;
+      }
+      return true;
+    }
 
-  const handleProceed = () => {
+    if (step === 2) {
+      // Validate productInformation section
+      const result = productInformationForm.safeParse(
+        form.state.values.productInformation
+      );
+      if (!result.success) {
+        // Trigger validation errors
+        form.validateAllFields("change");
+        return false;
+      }
+      return true;
+    }
+
+    if (step === 3) {
+      // Validate productConfirmation section
+      const productName = form.state.values.productInformation.name;
+      const confirmationSchema = createProductConfirmationForm(productName);
+      const result = confirmationSchema.safeParse(
+        form.state.values.productConfirmation
+      );
+      if (!result.success) {
+        // Trigger validation to show errors
+        form.validateAllFields("change");
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleProceed = async () => {
+    if (!formStep) return;
+
     setIsTransitioning(true);
     try {
-      if (formStep?.step === 1) {
-        const isValid =
-          form.state.fieldMeta["getStarted.url"].isValid &&
-          form.state.fieldMeta["getStarted.isDev"].isValid;
+      const isValid = await validateStep(formStep.step);
 
-        if (isValid) {
-          setFormStep(formCollection[formStep.step]);
+      setFormStep;
+
+      if (isValid) {
+        if (formStep.step < formCollection.length) {
+          setFormStep(formCollection[formStep.step + 1]);
         }
-        console.log(isValid);
-      }
-
-      if (formStep?.step === 2) {
-        const isValid =
-          form.state.fieldMeta["productInformation.name"].isValid &&
-          form.state.fieldMeta["productInformation.tagline"].isValid &&
-          form.state.fieldMeta["productInformation.description"].isValid &&
-          form.state.fieldMeta["productInformation.category"].isValid &&
-          form.state.fieldMeta["productInformation.xUrl"].isValid &&
-          form.state.fieldMeta["productInformation.linkedinUrl"].isValid;
-
-        console.log(
-          form.runValidator()
-          form.getFieldMeta("productInformation.name")?.isValid
-        );
-
-        // if (isValid) {
-        //   setFormStep(formCollection[formStep.step]);
-        // }
-        // console.log(form.state.fieldMeta);
+      } else {
+        // Show error toast if validation fails
+        toast.error("Please fix the errors before proceeding", {
+          position: "bottom-right",
+        });
       }
     } finally {
       setIsTransitioning(false);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (formStep && formStep.step > 1) {
+      setFormStep(formCollection[formStep.step - 2]);
     }
   };
 
@@ -213,11 +267,7 @@ function RouteComponent() {
             {formStep && formStep.step > 1 && (
               <Button
                 aria-label="previous form"
-                onClick={() => {
-                  if (formStep.step > 1) {
-                    setFormStep(formCollection[formStep.step - 2]);
-                  }
-                }}
+                onClick={handlePrevious}
                 size="sm"
                 variant={"outline"}
               >
@@ -249,72 +299,72 @@ function RouteComponent() {
                   steps.
                 </p>
 
-                <div className="mt-5 flex flex-col gap-4">
+                <FieldGroup className="mt-5">
                   <form.Field name="getStarted.url">
                     {(field) => (
-                      <div className="space-y-2">
-                        <Label
+                      <Field data-invalid={field.state.meta.errors.length > 0}>
+                        <FieldLabel
                           className="text-xs sm:text-sm"
                           htmlFor={field.name}
                         >
                           Product link
-                        </Label>
-                        <Input
-                          id={field.name}
-                          inputMode="url"
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="https://www.dealort.com"
-                          type="url"
-                          value={field.state.value}
-                        />
-                        {field.state.meta.errors.map((error) => (
-                          <p
-                            className="text-red-500 text-xs"
-                            key={
-                              (error as unknown as { message?: string })
-                                ?.message
+                        </FieldLabel>
+
+                        <InputGroup>
+                          <InputGroupAddon>
+                            <InputGroupText>https://</InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            aria-invalid={field.state.meta.errors.length > 0}
+                            className="pl-0.5!"
+                            id={field.name}
+                            inputMode="url"
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(`https://${e.target.value}`)
                             }
-                          >
-                            {
-                              (error as unknown as { message?: string })
-                                ?.message
-                            }
-                          </p>
-                        ))}
-                      </div>
+                            placeholder="dealort.com"
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupText>.com</InputGroupText>
+                          </InputGroupAddon>
+                        </InputGroup>
+                        <FieldError errors={field.state.meta.errors} />
+                      </Field>
                     )}
                   </form.Field>
 
                   <form.Field name="getStarted.isDev">
                     {(field) => (
-                      <div className="flex w-full items-center space-x-2">
-                        <Label className="flex w-full items-start gap-3 rounded-lg border p-3 hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
-                          <Checkbox
-                            checked={field.state.value}
-                            className="h-4 w-4"
-                            id={field.name}
-                            name={field.name}
-                            onCheckedChange={(checked) =>
-                              field.handleChange(checked === true)
-                            }
-                          />
-
+                      <Field orientation="horizontal">
+                        <Checkbox
+                          checked={field.state.value}
+                          className="h-4 w-4"
+                          id={field.name}
+                          name={field.name}
+                          onCheckedChange={(checked) =>
+                            field.handleChange(checked === true)
+                          }
+                        />
+                        <FieldLabel
+                          className="cursor-pointer rounded-lg border p-3 font-normal hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950"
+                          htmlFor={field.name}
+                        >
                           <div className="flex flex-col gap-1">
                             <p className="text-sm">
                               is this product still in development?
                             </p>
-                            <p className="font-light text-xs">
+                            <FieldDescription className="font-light text-xs">
                               Check the box if your product is not a fully
                               production ready software.
-                            </p>
+                            </FieldDescription>
                           </div>
-                        </Label>
-                      </div>
+                          <FieldError errors={field.state.meta.errors} />
+                        </FieldLabel>
+                      </Field>
                     )}
                   </form.Field>
-                </div>
+                </FieldGroup>
               </div>
             )}
 
@@ -329,159 +379,117 @@ function RouteComponent() {
                   </p>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-10">
-                  <div className="flex flex-col gap-4">
-                    <form.Field name="productInformation.name">
-                      {(field) => (
-                        <div className="space-y-2">
-                          <TextField
-                            inputType="input"
-                            label="Name of Product"
-                            maxLength={40}
-                            name={field.name}
-                            onBlur={field.handleBlur}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => field.handleChange(e.target.value)}
-                            placeholder="The name of the product you would launch "
-                            value={field.state.value}
-                          />
+                <FieldGroup className="mt-6">
+                  <FieldSet>
+                    <FieldGroup>
+                      <form.Field name="productInformation.name">
+                        {(field) => (
+                          <Field
+                            data-invalid={field.state.meta.errors.length > 0}
+                          >
+                            <TextField
+                              inputType="input"
+                              label="Name of Product"
+                              maxLength={40}
+                              name={field.name}
+                              onBlur={field.handleBlur}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) => field.handleChange(e.target.value)}
+                              placeholder="The name of the product you would launch "
+                              value={field.state.value}
+                            />
+                            <FieldError errors={field.state.meta.errors} />
+                          </Field>
+                        )}
+                      </form.Field>
 
-                          {field.state.meta.errors.map((error) => (
-                            <p
-                              className="text-red-500 text-xs"
-                              key={
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            >
-                              {
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </form.Field>
-
-                    <form.Field name="productInformation.tagline">
-                      {(field) => (
-                        <div className="space-y-2">
-                          <TextField
-                            infoTooltip="A short formal description"
-                            inputType="input"
-                            label="Tagline"
-                            maxLength={60}
-                            name={field.name}
-                            onBlur={field.handleBlur}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => field.handleChange(e.target.value)}
-                            placeholder="The name of the product you would launch "
-                            value={field.state.value}
-                          />
-                          {field.state.meta.errors.map((error) => (
-                            <p
-                              className="text-red-500 text-xs"
-                              key={
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            >
-                              {
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </form.Field>
-
-                    <form.Field name="productInformation.description">
-                      {(field) => (
-                        <div className="space-y-2">
-                          <TextField
-                            infoTooltip="Describe your project in detail, what it is all about and what makes you stand out from the crowd"
-                            inputType="textarea"
-                            label="Description"
-                            maxLength={600}
-                            name={field.name}
-                            onBlur={field.handleBlur}
-                            onChange={(
-                              e: React.ChangeEvent<HTMLInputElement>
-                            ) => field.handleChange(e.target.value)}
-                            placeholder="The name of the product you would launch "
-                            value={field.state.value}
-                          />
-                          {field.state.meta.errors.map((error) => (
-                            <p
-                              className="text-red-500 text-xs"
-                              key={
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            >
-                              {
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </form.Field>
-
-                    <form.Field name="productInformation.category">
-                      {(field) => (
-                        <div className="space-y-2">
-                          <CategoriesCombobox
-                            name={field.name}
-                            onBlur={field.handleBlur}
-                            onChange={field.handleChange}
-                            value={field.state.value}
-                          />
-
-                          {field.state.meta.errors.map((error) => (
-                            <p
-                              className="text-red-500 text-xs"
-                              key={
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            >
-                              {
-                                (error as unknown as { message?: string })
-                                  ?.message
-                              }
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </form.Field>
-                  </div>
-
-                  <hr className="border border-secondary" />
-
-                  <div className="flex flex-col gap-2">
-                    <h1 className="text-xl sm:text-3xl">Links</h1>
-
-                    <div className="flex flex-col gap-7">
-                      <form.Field name="productInformation.xUrl">
+                      <form.Field name="productInformation.tagline">
                         {(field) => (
                           <div className="space-y-2">
-                            <Label
+                            <TextField
+                              infoTooltip="A short formal description"
+                              inputType="input"
+                              label="Tagline"
+                              maxLength={60}
+                              name={field.name}
+                              onBlur={field.handleBlur}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) => field.handleChange(e.target.value)}
+                              placeholder="The name of the product you would launch "
+                              value={field.state.value}
+                            />
+                            <FieldError errors={field.state.meta.errors} />
+                          </div>
+                        )}
+                      </form.Field>
+
+                      <form.Field name="productInformation.description">
+                        {(field) => (
+                          <div className="space-y-2">
+                            <TextField
+                              infoTooltip="Describe your project in detail, what it is all about and what makes you stand out from the crowd"
+                              inputType="textarea"
+                              label="Description"
+                              maxLength={600}
+                              name={field.name}
+                              onBlur={field.handleBlur}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                              ) => field.handleChange(e.target.value)}
+                              placeholder="The name of the product you would launch "
+                              value={field.state.value}
+                            />
+                            <FieldError errors={field.state.meta.errors} />
+                          </div>
+                        )}
+                      </form.Field>
+
+                      <form.Field name="productInformation.category">
+                        {(field) => (
+                          <Field
+                            data-invalid={field.state.meta.errors.length > 0}
+                          >
+                            <CategoriesCombobox
+                              name={field.name}
+                              onBlur={field.handleBlur}
+                              onChange={(value) => field.handleChange(value)}
+                              value={field.state.value}
+                            />
+                            <FieldError errors={field.state.meta.errors} />
+                          </Field>
+                        )}
+                      </form.Field>
+                    </FieldGroup>
+                  </FieldSet>
+
+                  <FieldSeparator />
+
+                  <FieldSet>
+                    <FieldLegend className="text-xl sm:text-3xl">
+                      Links
+                    </FieldLegend>
+                    <FieldGroup>
+                      <form.Field name="productInformation.xUrl">
+                        {(field) => (
+                          <Field
+                            data-invalid={field.state.meta.errors.length > 0}
+                          >
+                            <FieldLabel
                               className="text-xs sm:text-sm"
                               htmlFor={field.name}
                             >
                               X account of the project
-                            </Label>
+                            </FieldLabel>
                             <div className="flex items-center">
                               <span className="h-full rounded-s-lg border bg-sidebar px-1 py-2.5 text-xs shadow-sm">
                                 x.com/@
                               </span>
                               <Input
+                                aria-invalid={
+                                  field.state.meta.errors.length > 0
+                                }
                                 className="rounded-s-none"
                                 id={field.name}
                                 inputMode="text"
@@ -495,38 +503,30 @@ function RouteComponent() {
                                 value={field.state.value}
                               />
                             </div>
-                            {field.state.meta.errors.map((error) => (
-                              <p
-                                className="text-red-500 text-xs"
-                                key={
-                                  (error as unknown as { message?: string })
-                                    ?.message
-                                }
-                              >
-                                {
-                                  (error as unknown as { message?: string })
-                                    ?.message
-                                }
-                              </p>
-                            ))}
-                          </div>
+                            <FieldError errors={field.state.meta.errors} />
+                          </Field>
                         )}
                       </form.Field>
 
                       <form.Field name="productInformation.linkedinUrl">
                         {(field) => (
-                          <div className="space-y-2">
-                            <Label
+                          <Field
+                            data-invalid={field.state.meta.errors.length > 0}
+                          >
+                            <FieldLabel
                               className="text-xs sm:text-sm"
                               htmlFor={field.name}
                             >
                               Linkedin (optional)
-                            </Label>
+                            </FieldLabel>
                             <div className="flex items-center">
                               <span className="h-full rounded-s-lg border bg-sidebar px-1 py-2.5 text-xs shadow-sm">
                                 linkedin.com/company/
                               </span>
                               <Input
+                                aria-invalid={
+                                  field.state.meta.errors.length > 0
+                                }
                                 className="rounded-s-none"
                                 id={field.name}
                                 inputMode="text"
@@ -540,61 +540,53 @@ function RouteComponent() {
                                 value={field.state.value}
                               />
                             </div>
-                            {field.state.meta.errors.map((error) => (
-                              <p
-                                className="text-red-500 text-xs"
-                                key={
-                                  (error as unknown as { message?: string })
-                                    ?.message
-                                }
-                              >
-                                {
-                                  (error as unknown as { message?: string })
-                                    ?.message
-                                }
-                              </p>
-                            ))}
-                          </div>
+                            <FieldError errors={field.state.meta.errors} />
+                          </Field>
                         )}
                       </form.Field>
 
-                      <div className="flex flex-col gap-2 rounded-lg border p-3 hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
+                      <Field className="flex flex-col gap-2 rounded-lg border p-3 hover:bg-accent/50 has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950">
                         <form.Field name="productInformation.isOpenSource">
                           {(field) => (
-                            <div className="flex w-full items-center space-x-2">
-                              <Label className="flex w-full items-center gap-1 *:text-light">
-                                <Checkbox
-                                  checked={field.state.value}
-                                  className="h-4 w-4"
-                                  id={field.name}
-                                  name={field.name}
-                                  onCheckedChange={(checked) => {
-                                    field.handleChange(checked === true);
-                                    setIsOpenSourced(checked === true);
-                                  }}
-                                />
-
-                                <div className="flex flex-col gap-1">
-                                  <p className="text-sm">
-                                    is project open source?
-                                  </p>
-                                </div>
-                              </Label>
-                            </div>
+                            <Field orientation="horizontal">
+                              <Checkbox
+                                checked={field.state.value}
+                                className="h-4 w-4"
+                                id={field.name}
+                                name={field.name}
+                                onCheckedChange={(checked) => {
+                                  field.handleChange(checked === true);
+                                  setIsOpenSourced(checked === true);
+                                }}
+                              />
+                              <FieldLabel
+                                className="font-normal"
+                                htmlFor={field.name}
+                              >
+                                is project open source?
+                              </FieldLabel>
+                            </Field>
                           )}
                         </form.Field>
 
                         {isOpenSourced && (
                           <form.Field name="productInformation.sourceCodeUrl">
                             {(field) => (
-                              <div className="space-y-2">
-                                <Label
+                              <Field
+                                data-invalid={
+                                  field.state.meta.errors.length > 0
+                                }
+                              >
+                                <FieldLabel
                                   className="font-extralight text-xs"
                                   htmlFor={field.name}
                                 >
                                   Github, Gitlab or Bitbucket
-                                </Label>
+                                </FieldLabel>
                                 <Input
+                                  aria-invalid={
+                                    field.state.meta.errors.length > 0
+                                  }
                                   id={field.name}
                                   inputMode="url"
                                   name={field.name}
@@ -606,36 +598,152 @@ function RouteComponent() {
                                   type="url"
                                   value={field.state.value}
                                 />
-                                {field.state.meta.errors.map((error) => (
-                                  <p
-                                    className="text-red-500 text-xs"
-                                    key={
-                                      (error as unknown as { message?: string })
-                                        ?.message
-                                    }
-                                  >
-                                    {
-                                      (error as unknown as { message?: string })
-                                        ?.message
-                                    }
-                                  </p>
-                                ))}
-                              </div>
+                                <FieldError errors={field.state.meta.errors} />
+                              </Field>
                             )}
                           </form.Field>
                         )}
+                      </Field>
+                    </FieldGroup>
+                  </FieldSet>
+                </FieldGroup>
+              </div>
+            )}
+
+            {formStep?.step === 3 && (
+              <div className="flex flex-col gap-2">
+                <h1 className="text-3xl sm:text-4xl">
+                  Confirm your submission
+                </h1>
+                <p className="font-light text-xs sm:text-sm">
+                  Please review your information before submitting. You can go
+                  back to make changes if needed.
+                </p>
+
+                <div className="mt-6 flex flex-col gap-6">
+                  <div className="flex flex-col gap-4 rounded-lg border p-4">
+                    <h2 className="font-semibold text-lg">Product Details</h2>
+                    <div className="flex flex-col gap-2 text-sm">
+                      <div>
+                        <span className="font-medium">Name: </span>
+                        <span>{form.state.values.productInformation.name}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Tagline: </span>
+                        <span>
+                          {form.state.values.productInformation.tagline}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Description: </span>
+                        <span>
+                          {form.state.values.productInformation.description}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Categories: </span>
+                        <span>
+                          {form.state.values.productInformation.category.join(
+                            ", "
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex flex-col gap-4 rounded-lg border p-4">
+                    <h2 className="font-semibold text-lg">Links</h2>
+                    <div className="flex flex-col gap-2 text-sm">
+                      <div>
+                        <span className="font-medium">Product URL: </span>
+                        <span>{form.state.values.getStarted.url}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium">X Account: </span>
+                        <span>
+                          {form.state.values.productInformation.xUrl
+                            ? `x.com/@${form.state.values.productInformation.xUrl}`
+                            : "Not provided"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">LinkedIn: </span>
+                        <span>
+                          {form.state.values.productInformation.linkedinUrl
+                            ? `linkedin.com/company/${form.state.values.productInformation.linkedinUrl}`
+                            : "Not provided"}
+                        </span>
+                      </div>
+                      {form.state.values.productInformation.isOpenSource && (
+                        <div>
+                          <span className="font-medium">Source Code: </span>
+                          <span>
+                            {form.state.values.productInformation.sourceCodeUrl}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-4 rounded-lg border p-4">
+                    <h2 className="font-semibold text-lg">Additional Info</h2>
+                    <div className="flex flex-col gap-2 text-sm">
+                      <div>
+                        <span className="font-medium">In Development: </span>
+                        <span>
+                          {form.state.values.getStarted.isDev ? "Yes" : "No"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-medium">Open Source: </span>
+                        <span>
+                          {form.state.values.productInformation.isOpenSource
+                            ? "Yes"
+                            : "No"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <form.Field name="productConfirmation.name">
+                    {(field) => (
+                      <Field data-invalid={field.state.meta.errors.length > 0}>
+                        <FieldLabel
+                          className="text-xs sm:text-sm"
+                          htmlFor={field.name}
+                        >
+                          Type the product name to confirm
+                        </FieldLabel>
+                        <Input
+                          aria-invalid={field.state.meta.errors.length > 0}
+                          id={field.name}
+                          name={field.name}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder={
+                            form.state.values.productInformation.name
+                          }
+                          type="text"
+                          value={field.state.value}
+                        />
+                        <FieldError errors={field.state.meta.errors} />
+                      </Field>
+                    )}
+                  </form.Field>
                 </div>
               </div>
             )}
+
             <div>
               <Button
                 className="mt-4 size-fit w-full rounded-full px-16"
                 disabled={isTransitioning}
-                onClick={handleProceed}
-                type={formStep?.step === 1 ? "submit" : "button"}
+                onClick={
+                  formStep?.step === 3
+                    ? () => form.handleSubmit()
+                    : handleProceed
+                }
+                type={formStep?.step === 3 ? "submit" : "button"}
               >
                 {(() => {
                   if (isTransitioning) {
@@ -691,16 +799,16 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   return (
-    <div className={`mb-4 w-full ${className}`}>
-      <div className="flex items-center justify-between">
+    <div className={`w-full ${className}`}>
+      <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-px">
-          <Label
-            className="mb-1 block text-foreground text-xs sm:text-sm"
+          <FieldLabel
+            className="text-foreground text-xs sm:text-sm"
             htmlFor={name}
           >
             {label}
             {/* {required ? <span className="text-destructive">*</span> : null} */}
-          </Label>
+          </FieldLabel>
 
           {infoTooltip && (
             <Tooltip>
@@ -746,7 +854,9 @@ export function TextField({
         />
       )}
       {helperText && (
-        <div className="mt-1 text-muted-foreground text-xs">{helperText}</div>
+        <FieldDescription className="mt-1 text-xs">
+          {helperText}
+        </FieldDescription>
       )}
     </div>
   );
@@ -796,15 +906,15 @@ export function CategoriesCombobox({
 }: ComboboxFieldProps) {
   const [currentValue, setCurrentValue] = useState<string[]>([]);
 
-  useEffect(() => {
-    onChange(currentValue);
-  }, [currentValue, onChange]);
+  // useEffect(() => {
+  //   onChange(currentValue);
+  // }, [currentValue, onChange]);
 
   return (
     <Combobox multiple onValueChange={setCurrentValue} value={currentValue}>
-      <ComboboxLabel className="pt-0 font-medium text-xs sm:text-sm">
+      <FieldLabel className="pt-0 font-medium text-xs sm:text-sm">
         Categories
-      </ComboboxLabel>
+      </FieldLabel>
       <ComboboxAnchor asChild>
         <TagsInput
           className="relative flex h-full min-h-10 w-full flex-row flex-wrap items-center justify-start gap-1.5 px-2.5 py-2"

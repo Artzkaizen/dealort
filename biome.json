@@ -26,13 +26,20 @@
 
   "linter": {
     "rules": {
+      "nursery": {
+      "noShadow": "off"
+    },
       "style": {
+        "useBlockStatements": "off",
         "useConsistentTypeDefinitions": {
           "level": "error",
           "options": {
             "style": "interface"
           }
         }
+      },
+      "performance": {
+        "noNamespaceImport": "off"
       }
     }
   }
