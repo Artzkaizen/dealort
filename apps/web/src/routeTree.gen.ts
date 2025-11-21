@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticateRouteImport } from './routes/authenticate'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as PublicLayoutRouteImport } from './routes/_public/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -20,9 +20,9 @@ import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AuthenticateRoute = AuthenticateRouteImport.update({
+  id: '/authenticate',
+  path: '/authenticate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
@@ -73,7 +73,7 @@ const DashboardTestTestATestBTestCTestRoute =
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/login': typeof LoginRoute
+  '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
   '/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
@@ -83,7 +83,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof LoginRoute
+  '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
   '/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
@@ -96,7 +96,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/login': typeof LoginRoute
+  '/authenticate': typeof AuthenticateRoute
   '/_public/launches': typeof PublicLaunchesRoute
   '/_public/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
@@ -109,7 +109,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dashboard'
-    | '/login'
+    | '/authenticate'
     | '/launches'
     | '/products'
     | '/dashboard/file-test'
@@ -119,7 +119,7 @@ export interface FileRouteTypes {
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/login'
+    | '/authenticate'
     | '/launches'
     | '/products'
     | '/dashboard/file-test'
@@ -131,7 +131,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_public'
     | '/dashboard'
-    | '/login'
+    | '/authenticate'
     | '/_public/launches'
     | '/_public/products'
     | '/dashboard/file-test'
@@ -144,16 +144,16 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicLayoutRoute: typeof PublicLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  AuthenticateRoute: typeof AuthenticateRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/authenticate': {
+      id: '/authenticate'
+      path: '/authenticate'
+      fullPath: '/authenticate'
+      preLoaderRoute: typeof AuthenticateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -259,7 +259,7 @@ const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   PublicLayoutRoute: PublicLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
-  LoginRoute: LoginRoute,
+  AuthenticateRoute: AuthenticateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
