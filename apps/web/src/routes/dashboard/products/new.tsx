@@ -1,11 +1,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, ChevronDown, InfoIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  CloudUploadIcon,
+  InfoIcon,
+  XIcon,
+} from "lucide-react";
+import { useCallback, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Combobox,
@@ -28,8 +41,18 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+} from "@/components/ui/file-field";
+import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -42,6 +65,7 @@ import {
   InputGroupInput,
   InputGroupText,
 } from "@/components/ui/input-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Stepper,
   StepperContent,
@@ -68,19 +92,65 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+const PROTOCOL_REGEX = /^https?:\/\//i;
+const DOMAIN_EXTENSION_REGEX = /\.[a-zA-Z]{2,}/;
 const URL_REGEX =
   /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
 const X_URL_REGEX =
   /^(https?:\/\/(?:www\.)?(?:twitter|x)\.com\/)([A-Za-z0-9_]{1,15})$/i;
+const acceptedFormats = ["image/jpg", "image/jpeg", "image/png"];
+
+const getImageDimensions = (
+  file: File | Blob
+): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url); // Clean up the object URL
+      resolve({
+        width: img.width,
+        height: img.height,
+      });
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to load image for dimension check."));
+    };
+
+    img.src = url;
+  });
+};
 
 export const Route = createFileRoute("/dashboard/products/new")({
   component: RouteComponent,
 });
 
 const getStartedForm = z.object({
-  url: z.url("").refine((val) => !val || URL_REGEX.test(val), {
-    message: "Please enter a valid URL",
-  }),
+  url: z
+    .string({
+      message: "URL is required.",
+    })
+    .refine((val) => !PROTOCOL_REGEX.test(val), {
+      message:
+        "Please enter only the website address (e.g., company.com) and not the full URL starting with https://",
+    })
+    .refine((val) => !val || DOMAIN_EXTENSION_REGEX.test(val), {
+      message: "Please include a domain extension (e.g., .com, .org).",
+    })
+    .transform((val) => {
+      if (!val) {
+        return val;
+      }
+      return `https://${val}`;
+    })
+    .pipe(
+      z.url({
+        message: "Please enter a valid URL (e.g., example.com)",
+      })
+    ),
   isDev: z.boolean(),
 });
 
@@ -96,27 +166,65 @@ const productInformationForm = z
       .min(1, "Type description")
       .max(600, "Description cannot exceed 600 characters"),
     category: z.array(z.string()).min(1, "Please select at least one category"),
-    xUrl: z.url("Please input x username").refine(
-      (val) => {
-        console.log(val);
-        return !val || X_URL_REGEX.test(val);
-      },
-      {
-        message: "Please enter a valid LinkedIn username",
-      }
-    ),
+    xUrl: z
+      .string()
+      .refine((val) => !PROTOCOL_REGEX.test(val), {
+        message:
+          "Please enter only the username (e.g., username) and not the full URL.",
+      })
+      .transform((val) => {
+        if (!val) {
+          return val;
+        }
+        // Assuming a clean username is now prepended
+        return `https://x.com/${val}`;
+      })
+      .pipe(z.url("Please input a valid X/Twitter username."))
+      .refine(
+        (val) => !val || X_URL_REGEX.test(val), // X_URL_REGEX must check for the full 'https://x.com/username' format
+        {
+          message: "Please enter a valid X/Twitter username format.",
+        }
+      ),
     linkedinUrl: z
       .string()
-      .refine((val) => !val || URL_REGEX.test(val), {
-        message: "Please enter a valid LinkedIn company name",
+      .refine((val) => !PROTOCOL_REGEX.test(val), {
+        message:
+          "Please enter only the company path (e.g., company-name) and not the full URL.",
       })
+      .transform((val) => {
+        if (!val) {
+          return val;
+        }
+        return `https://www.linkedin.com/company/${val}`;
+      })
+      .pipe(z.url("Please enter a valid LinkedIn company path."))
       .or(z.literal("")),
+
     isOpenSource: z.boolean(),
     sourceCodeUrl: z
-      .url("Please enter a valid source code repository URL")
-      .or(z.literal(""))
+      .string()
+      .refine((val) => !(val && PROTOCOL_REGEX.test(val)), {
+        message:
+          "Please enter only the domain and path (e.g., github.com/user/repo), not a full URL starting with https://.",
+      })
+      .transform((val) => {
+        if (!val) {
+          return val;
+        }
+        return `https://${val}`;
+      })
+      .pipe(
+        z.union([
+          z.literal(""), // Explicitly allow the empty string
+          z.url({
+            message: "Please enter a valid source code URL.",
+          }),
+        ])
+      )
       .refine((val) => !val || URL_REGEX.test(val), {
-        message: "Please enter a valid source code link",
+        message:
+          "Please enter a valid source code link (must include domain and path).",
       })
       .optional(),
   })
@@ -133,53 +241,79 @@ const productInformationForm = z
     }
   );
 
-const createProductConfirmationForm = (productName: string) =>
-  z.object({
-    name: z
-      .string()
-      .min(1, "Type product name")
-      .refine((val) => val === productName, {
-        message: "Product name does not match",
-      }),
-  });
-
+const mediaForm = z.object({
+  logo: z
+    .array(z.custom<File>())
+    .min(1, "Please select at least one file")
+    .max(1, "Please select only one file")
+    .refine((files) => files.every((file) => file.size <= 3 * 1024 * 1024), {
+      message: "File size must be less than 3MB",
+      path: ["logo"],
+    })
+    .refine(
+      (files) => files.every((file) => acceptedFormats.includes(file.type)),
+      {
+        message: "Only JPG and PNG images are allowed",
+        path: ["logo"],
+      }
+    )
+    .superRefine(async (files, ctx) => {
+      try {
+        const { width, height } = await getImageDimensions(files[0]);
+        console.log(await getImageDimensions(files[0]));
+        if (width !== 240 || height !== 240) {
+          // Add a detailed error message to the Zod context
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Image must be exactly ${240}x${240} pixels. Found ${width}x${height}.`,
+          });
+          return; // Stop further validation checks
+        }
+      } catch (error) {
+        // Handle errors during image loading (e.g., corrupted file)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Could not determine image dimensions.",
+        });
+      }
+    }),
+  gallery: z
+    .array(z.custom<File>())
+    .min(0)
+    .max(3, "Cannot select more than 3 files")
+    .refine((files) => files.every((file) => file.size <= 2 * 1024 * 1024), {
+      message: "File size must be less than 2MB",
+      path: ["gallery"],
+    })
+    .refine(
+      (files) => files.every((file) => acceptedFormats.includes(file.type)),
+      {
+        message: "Only JPG and PNG images are allowed",
+        path: ["gallery"],
+      }
+    )
+    .optional(),
+});
 // Full form schema - note: confirmation validation is dynamic
 const productFormSchema = z.object({
   getStarted: getStartedForm,
   productInformation: productInformationForm,
-  productConfirmation: z.object({
-    name: z.string().min(1, "Type product name"),
-  }),
+  media: mediaForm,
 });
 
 type NewProductForm = z.infer<typeof productFormSchema>;
-
-// const formCollection = [
-//   {
-//     key: "get started",
-//     step: 1,
-//   },
-//   {
-//     key: "product information",
-//     step: 2,
-//   },
-//   {
-//     key: "product confirmation",
-//     step: 3,
-//   },
-// ] as const;
 
 const formSteps = [
   {
     value: "get-started",
     title: "Get Started",
-    description: "Provide a concise information about your project",
+    description: "",
     fields: ["getStarted.url", "getStarted.isDev"] as const,
   },
   {
     value: "product-information",
     title: "Product Information",
-    description: "Details about your products",
+    description: "Details about your product",
     fields: [
       "productInformation.name",
       "productInformation.tagline",
@@ -194,7 +328,13 @@ const formSteps = [
   {
     value: "media",
     title: "Media contents",
-    description: "Logos and other images",
+    description: "Logos and screenshots",
+    fields: ["media.logo", "media.gallery"] as const,
+  },
+  {
+    value: "confirmation",
+    title: "Confirmation",
+    description: "Preview and confirm inputs",
     fields: [] as const,
   },
 ] as const;
@@ -203,7 +343,7 @@ function RouteComponent() {
   const form = useForm<NewProductForm>({
     defaultValues: {
       getStarted: {
-        url: "https://",
+        url: "",
         isDev: false,
       },
       productInformation: {
@@ -214,10 +354,11 @@ function RouteComponent() {
         xUrl: "",
         linkedinUrl: "",
         isOpenSource: false,
-        sourceCodeUrl: "https://",
+        sourceCodeUrl: "",
       },
-      productConfirmation: {
-        name: "",
+      media: {
+        logo: [],
+        gallery: [],
       },
     },
     resolver: zodResolver(productFormSchema),
@@ -228,57 +369,7 @@ function RouteComponent() {
     (currentStep) => currentStep.value === step
   );
 
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [isOpenSourced, setIsOpenSourced] = useState(false);
-
-  // Validate current step before proceeding
-  const validateStep = (step: number): boolean => {
-    if (step === 1) {
-      // Validate getStarted section
-      const result = getStartedForm.safeParse(form.state.values.getStarted);
-      if (!result.success) {
-        // Trigger validation errors
-        form.validateAllFields("change");
-        form.handleSubmit();
-
-        return false;
-      }
-      return true;
-    }
-
-    if (step === 2) {
-      // Validate productInformation section
-      const result = productInformationForm.safeParse(
-        form.state.values.productInformation
-      );
-
-      if (!result.success) {
-        // Trigger validation errors
-        form.validateAllFields("change");
-        form.handleSubmit();
-
-        return false;
-      }
-      return true;
-    }
-
-    if (step === 3) {
-      // Validate productConfirmation section
-      const productName = form.state.values.productInformation.name;
-      const confirmationSchema = createProductConfirmationForm(productName);
-      const result = confirmationSchema.safeParse(
-        form.state.values.productConfirmation
-      );
-      if (!result.success) {
-        // Trigger validation to show errors
-        form.validateAllFields("change");
-        return false;
-      }
-      return true;
-    }
-
-    return false;
-  };
 
   const onValidate: NonNullable<StepperProps["onValidate"]> = useCallback(
     async (_value, direction) => {
@@ -311,57 +402,9 @@ function RouteComponent() {
     });
   };
 
-  const handleProceed = () => {
-    if (!formStep) return;
-
-    setIsTransitioning(true);
-    try {
-      const isValid = validateStep(formStep.step);
-
-      // setFormStep();
-
-      if (isValid) {
-        if (formStep.step < formCollection.length) {
-          setFormStep(formCollection[formStep.step]);
-        }
-      } else {
-        // Show error toast if validation fails
-        toast.error("Please fix the errors before proceeding", {
-          position: "bottom-right",
-        });
-      }
-    } finally {
-      setIsTransitioning(false);
-    }
-  };
-
-  const handlePrevious = () => {
-    if (formStep && formStep.step > 1) {
-      setFormStep(formCollection[formStep.step - 2]);
-    }
-  };
-
   return (
     <main className="min-h-screen gap-0">
       <section className="min-h-screen">
-        {/* <div className="sticky top-14 flex min-h-10 items-center justify-end border-t *:font-light">
-          <div className="flex size-fit items-center gap-1 bg-sidebar px-2 py-3 *:text-xs">
-            {formStep && formStep.step > 1 && (
-              <Button
-                aria-label="previous form"
-                onClick={handlePrevious}
-                size="sm"
-                variant={"outline"}
-              >
-                <ArrowLeft />
-              </Button>
-            )}
-            <span>
-              {formStep?.step}/{formCollection.length}
-            </span>
-          </div>
-        </div> */}
-
         <div className="flex flex-col gap-2 px-2 py-3">
           <Form {...form}>
             <form
@@ -372,22 +415,22 @@ function RouteComponent() {
               <Stepper
                 onValidate={onValidate}
                 onValueChange={setStep}
-                orientation="vertical"
+                orientation="horizontal"
                 value={step}
               >
-                <StepperList>
+                <StepperList className="">
                   {formSteps.map((step) => (
                     <StepperItem key={step.value} value={step.value}>
-                      <StepperTrigger className="not-last:pb-6">
+                      <StepperTrigger>
                         <StepperIndicator />
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-px">
                           <StepperTitle>{step.title}</StepperTitle>
                           <StepperDescription>
                             {step.description}
                           </StepperDescription>
                         </div>
                       </StepperTrigger>
-                      <StepperSeparator className="-order-1 -translate-x-1/2 -z-10 absolute inset-y-0 top-5 left-3.5 h-full" />
+                      <StepperSeparator className="mx-4" />
                     </StepperItem>
                   ))}
                 </StepperList>
@@ -423,13 +466,11 @@ function RouteComponent() {
                                   inputMode="url"
                                   onBlur={field.onBlur}
                                   onChange={(e) =>
-                                    field.onChange(`https://${e.target.value}`)
+                                    field.onChange(e.target.value)
                                   }
                                   placeholder="dealort"
+                                  value={field.value ?? ""}
                                 />
-                                {/* <InputGroupAddon align="inline-end">
-                                  <InputGroupText>.com</InputGroupText>
-                                </InputGroupAddon> */}
                               </InputGroup>
                             </FormControl>
                             <FormMessage />
@@ -564,18 +605,20 @@ function RouteComponent() {
                         <FormField
                           control={form.control}
                           name="productInformation.category"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
+                          render={() => (
+                            <Controller
+                              control={form.control}
+                              defaultValue={[]}
+                              name="productInformation.category"
+                              render={({ field }) => (
                                 <CategoriesCombobox
                                   name={field.name}
                                   onBlur={field.onBlur}
-                                  onChange={(value) => field.onChange(value)}
-                                  value={field.value}
+                                  onChange={field.onChange}
+                                  value={field.value || []}
                                 />
-                              </FormControl>
-                              <FormMessage className="mt-4" />
-                            </FormItem>
+                              )}
+                            />
                           )}
                         />
                       </FieldSet>
@@ -609,11 +652,10 @@ function RouteComponent() {
                                     name={field.name}
                                     onBlur={field.onBlur}
                                     onChange={(e) =>
-                                      field.onChange(
-                                        `https://x.com/${e.target.value}`
-                                      )
+                                      field.onChange(e.target.value)
                                     }
                                     placeholder="dealort"
+                                    value={field.value}
                                   />
                                 </InputGroup>
                               </FormControl>
@@ -647,11 +689,10 @@ function RouteComponent() {
                                     name={field.name}
                                     onBlur={field.onBlur}
                                     onChange={(e) =>
-                                      field.onChange(
-                                        `https://linkedin.com/company/${e.target.value}`
-                                      )
+                                      field.onChange(e.target.value)
                                     }
                                     placeholder="dealort"
+                                    value={field.value}
                                   />
                                 </InputGroup>
                               </FormControl>
@@ -716,11 +757,10 @@ function RouteComponent() {
                                         inputMode="url"
                                         onBlur={field.onBlur}
                                         onChange={(e) =>
-                                          field.onChange(
-                                            `https://${e.target.value}`
-                                          )
+                                          field.onChange(e.target.value)
                                         }
                                         placeholder="repository remote url"
+                                        value={field.value}
                                       />
                                     </InputGroup>
                                   </FormControl>
@@ -734,9 +774,151 @@ function RouteComponent() {
                     </FieldGroup>
                   </StepperContent>
 
-                  <div className="mt-4 flex justify-between">
+                  <StepperContent
+                    className="flex max-w-md flex-col gap-2"
+                    value="media"
+                  >
+                    <div className="mb-6 flex flex-col gap-2">
+                      <h1 className="text-xl sm:text-2xl">Media and Images</h1>
+                      <p className="font-light text-xs sm:text-sm">
+                        Important media and images that describe your product.
+                      </p>
+                    </div>
+
+                    <FieldGroup>
+                      <FieldSet>
+                        <FormField
+                          control={form.control}
+                          name="media.logo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Logo</FormLabel>
+
+                              <FileUpload
+                                accept=".jpg, .png, .jpeg"
+                                onFileReject={(_, message) => {
+                                  form.setError("media.logo", {
+                                    message,
+                                  });
+                                }}
+                                onValueChange={(val) => {
+                                  field.onChange([val.at(-1)]);
+                                }}
+                                value={field.value}
+                              >
+                                <FileUploadDropzone className="flex-row flex-wrap border-dotted text-center">
+                                  <CloudUploadIcon className="size-4" />
+                                  Drag and drop or to upload
+                                  <div className="mt-px text-[8px]">
+                                    recommended 240x240
+                                  </div>
+                                </FileUploadDropzone>
+
+                                {field.value.map((file) => (
+                                  <FileUploadItem key={file.name} value={file}>
+                                    <FileUploadItemPreview />
+                                    <FileUploadItemMetadata />
+                                    <FileUploadItemDelete asChild>
+                                      <Button
+                                        className="size-7"
+                                        size="icon"
+                                        variant="ghost"
+                                      >
+                                        <XIcon />
+                                        <span className="sr-only">Delete</span>
+                                      </Button>
+                                    </FileUploadItemDelete>
+                                  </FileUploadItem>
+                                ))}
+                              </FileUpload>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </FieldSet>
+
+                      <FieldSeparator />
+
+                      <FieldSet>
+                        <div className="flex flex-col gap-1">
+                          <h3 className="sm:text-lg">Gallery</h3>
+                          <p className="font-light text-sm">
+                            A carefully selected snapshots of your projects
+                          </p>
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name="media.gallery"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Attachments</FormLabel>
+                              <FormControl>
+                                <FileUpload
+                                  accept="image/*"
+                                  maxFiles={3}
+                                  maxSize={2 * 1024 * 1024}
+                                  multiple
+                                  onFileReject={(_, message) => {
+                                    form.setError("media.gallery", {
+                                      message,
+                                    });
+                                  }}
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FileUploadDropzone className="flex-row flex-wrap border-dotted text-center">
+                                    <CloudUploadIcon className="size-4" />
+                                    Drag and drop or choose files to upload
+                                    <div className="text-[8px]">
+                                      recommended 1270x760px
+                                    </div>
+                                  </FileUploadDropzone>
+                                  <FileUploadList>
+                                    {field.value?.map((file) => (
+                                      <FileUploadItem
+                                        key={file.name}
+                                        value={file}
+                                      >
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete asChild>
+                                          <Button
+                                            className="size-7"
+                                            size="icon"
+                                            variant="ghost"
+                                          >
+                                            <XIcon />
+                                            <span className="sr-only">
+                                              Delete
+                                            </span>
+                                          </Button>
+                                        </FileUploadItemDelete>
+                                      </FileUploadItem>
+                                    ))}
+                                  </FileUploadList>
+                                </FileUpload>
+                              </FormControl>
+
+                              <FormMessage />
+                              <FormDescription>
+                                Optional and cannot select more than 3 images
+                              </FormDescription>
+                            </FormItem>
+                          )}
+                        />
+                      </FieldSet>
+                    </FieldGroup>
+                  </StepperContent>
+
+                  <StepperContent
+                    className="flex max-w-md flex-col gap-2"
+                    value="media"
+                  />
+
+                  <div className="mt-4 flex max-w-md justify-between">
                     <StepperPrev asChild>
-                      <Button variant="outline">
+                      <Button type="button" variant="outline">
                         <ArrowLeft />
                       </Button>
                     </StepperPrev>
@@ -747,174 +929,24 @@ function RouteComponent() {
                       <Button type="submit">Complete</Button>
                     ) : (
                       <StepperNext asChild>
-                        <Button>
+                        <Button type="button">
                           <ArrowRight />
                         </Button>
                       </StepperNext>
                     )}
                   </div>
                 </div>
-                {/*
-            {formStep?.step === 3 && (
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl sm:text-4xl">
-                  Confirm your submission
-                </h1>
-                <p className="font-light text-xs sm:text-sm">
-                  Please review your information before submitting. You can go
-                  back to make changes if needed.
-                </p>
-
-                <div className="mt-6 flex flex-col gap-6">
-                  <div className="flex flex-col gap-4 rounded-lg border p-4">
-                    <h2 className="font-semibold text-lg">Product Details</h2>
-                    <div className="flex flex-col gap-2 text-sm">
-                      <div>
-                        <span className="font-medium">Name: </span>
-                        <span>{form.state.values.productInformation.name}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Tagline: </span>
-                        <span>
-                          {form.state.values.productInformation.tagline}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Description: </span>
-                        <span>
-                          {form.state.values.productInformation.description}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Categories: </span>
-                        <span>
-                          {form.state.values.productInformation.category.join(
-                            ", "
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4 rounded-lg border p-4">
-                    <h2 className="font-semibold text-lg">Links</h2>
-                    <div className="flex flex-col gap-2 text-sm">
-                      <div>
-                        <span className="font-medium">Product URL: </span>
-                        <span>{form.state.values.getStarted.url}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium">X Account: </span>
-                        <span>
-                          {form.state.values.productInformation.xUrl
-                            ? `x.com/@${form.state.values.productInformation.xUrl}`
-                            : "Not provided"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium">LinkedIn: </span>
-                        <span>
-                          {form.state.values.productInformation.linkedinUrl
-                            ? `linkedin.com/company/${form.state.values.productInformation.linkedinUrl}`
-                            : "Not provided"}
-                        </span>
-                      </div>
-                      {form.state.values.productInformation.isOpenSource && (
-                        <div>
-                          <span className="font-medium">Source Code: </span>
-                          <span>
-                            {form.state.values.productInformation.sourceCodeUrl}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4 rounded-lg border p-4">
-                    <h2 className="font-semibold text-lg">Additional Info</h2>
-                    <div className="flex flex-col gap-2 text-sm">
-                      <div>
-                        <span className="font-medium">In Development: </span>
-                        <span>
-                          {form.state.values.getStarted.isDev ? "Yes" : "No"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-medium">Open Source: </span>
-                        <span>
-                          {form.state.values.productInformation.isOpenSource
-                            ? "Yes"
-                            : "No"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <form.Field name="productConfirmation.name">
-                    {(field) => (
-                      <Field data-invalid={field.state.meta.errors.length > 0}>
-                        <FieldLabel
-                          className="text-xs sm:text-sm"
-                          htmlFor={field.name}
-                        >
-                          Type the product name to confirm
-                        </FieldLabel>
-                        <Input
-                          aria-invalid={field.state.meta.errors.length > 0}
-                          id={field.name}
-                          name={field.name}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder={
-                            form.state.values.productInformation.name
-                          }
-                          type="text"
-                          value={field.state.value}
-                        />
-                        <FieldError errors={field.state.meta.errors} />
-                      </Field>
-                    )}
-                  </form.Field>
-                </div>
-              </div>
-            )} */}
-
-                {/* <div>
-                <Button
-                  className="mt-4 size-fit w-full rounded-full px-16"
-                  disabled={isTransitioning}
-                  onClick={
-                    formStep?.step === 3
-                      ? () => form.handleSubmit()
-                      : handleProceed
-                  }
-                  type={formStep?.step === 3 ? "submit" : "button"}
-                >
-                  {(() => {
-                    if (isTransitioning) {
-                      return "Loading...";
-                    }
-                    if (formStep && formStep.step < 3) {
-                      return "Next";
-                    }
-                    return "Submit";
-                  })()}
-                </Button>
-              </div> */}
               </Stepper>
             </form>
           </Form>
         </div>
       </section>
-
-      {/* <aside
-        className="col-span-2 hidden items-center justify-center overflow-x-hidden bg-sidebar bg-size-[22px_32px] md:flex"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(128,128,128,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(128,128,128,0.12) 1px, transparent 1px)",
-        }}
-      >
-        <h1 className="text-8xl text-foreground opacity-5">Dealort</h1>
+      {/* <aside>
+        <div className="flex gap-1 flex-wrap">
+          <Avatar>
+            <AvatarImage src={form.}></AvatarImage>
+          </Avatar>
+        </div>
       </aside> */}
     </main>
   );
@@ -1048,33 +1080,26 @@ interface ComboboxFieldProps {
 
 export function CategoriesCombobox({
   name,
+  value = [],
   onChange,
   onBlur,
+  className,
 }: ComboboxFieldProps) {
-  const [currentValue, setCurrentValue] = useState<string[]>([]);
-
-  useEffect(() => {
-    const handleChange = () => {
-      onChange(currentValue);
-    };
-
-    handleChange();
-  }, [currentValue]);
-
+  // no internal state — use the value provided by RHF
   return (
-    <Combobox multiple onValueChange={setCurrentValue} value={currentValue}>
+    <Combobox multiple onValueChange={onChange} value={value}>
       <FieldLabel className="pt-0 font-medium text-xs sm:text-sm">
         Categories
       </FieldLabel>
       <ComboboxAnchor asChild>
         <TagsInput
-          className="relative flex h-full min-h-10 w-full flex-row flex-wrap items-center justify-start gap-1.5 px-2.5 py-2"
+          className={`relative flex h-full min-h-10 w-full flex-row flex-wrap items-center justify-start gap-1.5 px-2.5 py-2 ${className}`}
           name={name}
           onBlur={onBlur}
-          onValueChange={setCurrentValue}
-          value={currentValue}
+          onValueChange={onChange}
+          value={value}
         >
-          {currentValue.map((item) => (
+          {value.map((item) => (
             <TagsInputItem key={item} value={item}>
               {item}
             </TagsInputItem>
@@ -1087,6 +1112,7 @@ export function CategoriesCombobox({
           </ComboboxTrigger>
         </TagsInput>
       </ComboboxAnchor>
+
       <ComboboxContent className="max-h-52 overflow-y-auto" sideOffset={5}>
         <ComboboxEmpty>No category found.</ComboboxEmpty>
         <ComboboxGroup>
@@ -1099,5 +1125,236 @@ export function CategoriesCombobox({
         </ComboboxGroup>
       </ComboboxContent>
     </Combobox>
+  );
+}
+
+interface PreviewProps {
+  values: NewProductForm;
+}
+
+function getFirstFileUrl(files: File[] = []) {
+  if (!files?.length) return "";
+  return URL.createObjectURL(files[0]);
+}
+function getFilesUrls(files: File[] = []) {
+  if (!files?.length) return [];
+  return files.map((f) => URL.createObjectURL(f));
+}
+
+export function ProductPreview({ values }: PreviewProps) {
+  const logoUrl = values.media.logo?.length
+    ? getFirstFileUrl(values.media.logo)
+    : null;
+  const galleryUrls = values.media.gallery?.length
+    ? getFilesUrls(values.media.gallery)
+    : [];
+
+  // Helper for skeleton
+  // const Skeleton = ({ className = "" }: { className?: string }) => (
+  //   <Skeleton className={className} />
+  // );
+
+  return (
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 rounded-lg border p-5">
+      {/* Logo, Name, Tagline */}
+      <div className="flex items-center gap-1">
+        <Avatar className="size-16 shrink-0">
+          {logoUrl ? (
+            <AvatarImage
+              alt={values.productInformation.name || "Logo"}
+              src={logoUrl}
+            />
+          ) : (
+            <AvatarFallback>
+              <Skeleton className="h-16 w-16 rounded-full" />
+            </AvatarFallback>
+          )}
+        </Avatar>
+        <div className="ml-3 flex flex-col gap-2">
+          <h3 className="font-semibold text-lg">
+            {values.productInformation.name ? (
+              values.productInformation.name
+            ) : (
+              <Skeleton className="h-6 w-24 rounded" />
+            )}
+          </h3>
+          <p className="font-light text-muted-foreground text-sm">
+            {values.productInformation.tagline ? (
+              values.productInformation.tagline
+            ) : (
+              <Skeleton className="h-4 w-40 rounded" />
+            )}
+          </p>
+        </div>
+      </div>
+      {/* Links */}
+      <div className="flex flex-col gap-1">
+        <div>
+          <span className="mr-2 font-medium text-muted-foreground text-xs">
+            Product URL:
+          </span>
+          {values.getStarted.url ? (
+            <a
+              className="text-primary underline"
+              href={values.getStarted.url}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {values.getStarted.url}
+            </a>
+          ) : (
+            <Skeleton className="inline-block h-4 w-36 rounded align-middle" />
+          )}
+        </div>
+        <div>
+          <span className="mr-2 font-medium text-muted-foreground text-xs">
+            X URL:
+          </span>
+          {values.productInformation.xUrl ? (
+            <a
+              className="text-primary underline"
+              href={values.productInformation.xUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {values.productInformation.xUrl}
+            </a>
+          ) : (
+            <Skeleton className="inline-block h-4 w-24 rounded align-middle" />
+          )}
+        </div>
+        <div>
+          <span className="mr-2 font-medium text-muted-foreground text-xs">
+            LinkedIn URL:
+          </span>
+          {values.productInformation.linkedinUrl ? (
+            <a
+              className="text-primary underline"
+              href={values.productInformation.linkedinUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {values.productInformation.linkedinUrl}
+            </a>
+          ) : (
+            <Skeleton className="inline-block h-4 w-24 rounded align-middle" />
+          )}
+        </div>
+        <div>
+          <span className="mr-2 font-medium text-muted-foreground text-xs">
+            Source Code:
+          </span>
+          {values.productInformation.sourceCodeUrl ? (
+            <a
+              className="text-primary underline"
+              href={values.productInformation.sourceCodeUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {values.productInformation.sourceCodeUrl}
+            </a>
+          ) : (
+            <Skeleton className="inline-block h-4 w-28 rounded align-middle" />
+          )}
+        </div>
+      </div>
+      {/* Description */}
+      <div>
+        <div className="mb-1 font-semibold text-muted-foreground text-xs">
+          Description
+        </div>
+        <div className="text-sm">
+          {values.productInformation.description ? (
+            values.productInformation.description
+          ) : (
+            <Skeleton className="h-5 w-full rounded" />
+          )}
+        </div>
+      </div>
+      {/* Categories */}
+      <div>
+        <div className="mb-1 font-semibold text-muted-foreground text-xs">
+          Categories
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {values.productInformation.category?.length ? (
+            values.productInformation.category.map((c) => (
+              <span
+                className="rounded bg-muted px-2 py-0.5 font-medium text-xs"
+                key={c}
+              >
+                {c}
+              </span>
+            ))
+          ) : (
+            <Skeleton className="h-6 w-24 rounded" />
+          )}
+        </div>
+      </div>
+      {/* isOpenSource & isDev */}
+      <div className="flex gap-4">
+        <div>
+          <span className="mr-1 font-semibold text-muted-foreground text-xs">
+            Open Source:
+          </span>
+          <span className="font-medium text-sm">
+            {typeof values.productInformation.isOpenSource === "boolean" ? (
+              values.productInformation.isOpenSource ? (
+                "Yes"
+              ) : (
+                "No"
+              )
+            ) : (
+              <Skeleton className="inline-block h-4 w-8 align-middle" />
+            )}
+          </span>
+        </div>
+        <div>
+          <span className="mr-1 font-semibold text-muted-foreground text-xs">
+            In Development:
+          </span>
+          <span className="font-medium text-sm">
+            {typeof values.getStarted.isDev === "boolean" ? (
+              values.getStarted.isDev ? (
+                "Yes"
+              ) : (
+                "No"
+              )
+            ) : (
+              <Skeleton className="inline-block h-4 w-8 align-middle" />
+            )}
+          </span>
+        </div>
+      </div>
+      {/* Gallery */}
+      <div className="mt-2">
+        <div className="mb-1 font-semibold text-muted-foreground text-xs">
+          Gallery
+        </div>
+        {galleryUrls.length > 0 ? (
+          <Carousel className="w-full max-w-md">
+            <CarouselContent>
+              {galleryUrls.map((url, idx) => (
+                <CarouselItem className="flex justify-center" key={url}>
+                  <img
+                    alt={`Gallery ${idx + 1}`}
+                    className="max-h-72 w-full rounded-lg border bg-muted object-contain"
+                    height=""
+                    src={url}
+                    width=""
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        ) : (
+          <div className="flex gap-2">
+            <Skeleton className="h-28 w-40 rounded-lg" />
+            <Skeleton className="h-28 w-40 rounded-lg" />
+            <Skeleton className="h-28 w-40 rounded-lg" />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

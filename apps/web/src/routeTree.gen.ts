@@ -14,6 +14,7 @@ import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as PublicLayoutRouteImport } from './routes/_public/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as DashboardFileTestRouteImport } from './routes/dashboard/file-test'
 import { Route as PublicProductsRouteImport } from './routes/_public/products'
 import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
@@ -43,6 +44,11 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
+const DashboardFileTestRoute = DashboardFileTestRouteImport.update({
+  id: '/file-test',
+  path: '/file-test',
+  getParentRoute: () => DashboardLayoutRoute,
+} as any)
 const PublicProductsRoute = PublicProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/launches': typeof PublicLaunchesRoute
   '/products': typeof PublicProductsRoute
+  '/dashboard/file-test': typeof DashboardFileTestRoute
   '/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/launches': typeof PublicLaunchesRoute
   '/products': typeof PublicProductsRoute
+  '/dashboard/file-test': typeof DashboardFileTestRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_public/launches': typeof PublicLaunchesRoute
   '/_public/products': typeof PublicProductsRoute
+  '/dashboard/file-test': typeof DashboardFileTestRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/launches'
     | '/products'
+    | '/dashboard/file-test'
     | '/'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/launches'
     | '/products'
+    | '/dashboard/file-test'
     | '/'
     | '/dashboard'
     | '/dashboard/products/new'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_public/launches'
     | '/_public/products'
+    | '/dashboard/file-test'
     | '/_public/'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -172,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicLayoutRoute
     }
+    '/dashboard/file-test': {
+      id: '/dashboard/file-test'
+      path: '/file-test'
+      fullPath: '/dashboard/file-test'
+      preLoaderRoute: typeof DashboardFileTestRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
     '/_public/products': {
       id: '/_public/products'
       path: '/products'
@@ -220,12 +239,14 @@ const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
 )
 
 interface DashboardLayoutRouteChildren {
+  DashboardFileTestRoute: typeof DashboardFileTestRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardProductsNewRoute: typeof DashboardProductsNewRoute
   DashboardTestTestATestBTestCTestRoute: typeof DashboardTestTestATestBTestCTestRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
+  DashboardFileTestRoute: DashboardFileTestRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardProductsNewRoute: DashboardProductsNewRoute,
   DashboardTestTestATestBTestCTestRoute: DashboardTestTestATestBTestCTestRoute,
