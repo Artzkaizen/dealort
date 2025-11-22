@@ -24,6 +24,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 // Define dashboard navigation links with icons
 // Each link includes a path, label, and icon component
@@ -160,8 +161,8 @@ export function DashboardSidebar() {
     <div className="z-50">
       <Sidebar className="border-r" collapsible="icon">
         {/* Sidebar Header with toggle button */}
-        <SidebarHeader className="px-2">
-          <div className="flex w-full items-center justify-between border-b py-2">
+        <SidebarHeader className="h-15 border-b px-2">
+          <div className="flex w-full items-center justify-between">
             <h2 className="flex w-full items-center gap-1" id="">
               <Button aria-label="dealort dashboard" className="max-h-8" />
               {!isCollapsed && "Dealort"}
@@ -178,20 +179,25 @@ export function DashboardSidebar() {
               return (
                 <SidebarMenuItem key={link.path}>
                   <SidebarMenuButton asChild>
-                    <Link
-                      className={cn(
-                        "flex items-center gap-3 rounded-none rounded-s-xl",
-                        {
-                          "border-foreground border-r-4 bg-secondary text-accent-foreground":
-                            isActive,
-                        }
-                      )}
-                      // @ts-expect-error - TanStack Router types are strict and some dashboard routes may not be registered yet
-                      to={link.path}
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      <span className="truncate">{link.label}</span>
-                    </Link>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          className={cn(
+                            "flex h-full items-center gap-3 rounded-none rounded-s-xl px-2 py-2 text-sm",
+                            {
+                              "border-foreground border-r-4 bg-secondary text-accent-foreground":
+                                isActive,
+                            }
+                          )}
+                          // @ts-expect-error - TanStack Router types are strict and some dashboard routes may not be registered yet
+                          to={link.path}
+                        >
+                          <Icon className="size-4 shrink-0" />
+                          <span className="truncate">{link.label}</span>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>{link.label}</TooltipContent>
+                    </Tooltip>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );

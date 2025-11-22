@@ -30,7 +30,7 @@ export const NotFoundComponent = () => (
       />
     </div>
     <h1 className="mb-3 px-2 font-bold text-2xl">404 - Not Found</h1>
-    <p className="px-2 text-muted-foreground text-sm">
+    <p className="px-2 text-center text-muted-foreground text-sm">
       The page you are looking for does not exist.
     </p>
   </main>
