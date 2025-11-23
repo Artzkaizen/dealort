@@ -1,0 +1,20 @@
+{
+  "name": "@dealort/utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "build": "bun run tsc"
+  },
+  "devDependencies": {
+    "zod": "catalog:"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.8"
+  }
+}

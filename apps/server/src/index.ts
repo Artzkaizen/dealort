@@ -24,6 +24,11 @@ app.use(
   })
 );
 
+app.get("/", (c) => {
+  const Id = env.GOOGLE_CLIENT_ID; ;
+  c.status(203)
+  return c.text(Id as string);
+});
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {

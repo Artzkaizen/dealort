@@ -19,7 +19,8 @@
     "zod": "catalog:",
     "@dealort/api": "workspace:*",
     "@dealort/auth": "workspace:*",
-    "@dealort/db": "workspace:*"
+    "@dealort/db": "workspace:*",
+    "@dealort/utils": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",
