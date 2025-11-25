@@ -1,7 +1,8 @@
-import "dotenv/config";
+// dotenv.config({ path: '../../.env' });
 import { createContext } from "@dealort/api/context";
 import { appRouter } from "@dealort/api/routers/index";
 import { auth } from "@dealort/auth";
+import { env } from "@dealort/utils/env";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -17,18 +18,13 @@ app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: process.env.CORS_ORIGIN || "",
+    origin: env.CORS_ORIGIN || "",
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
-app.get("/", (c) => {
-  const Id = env.GOOGLE_CLIENT_ID; ;
-  c.status(203)
-  return c.text(Id as string);
-});
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
@@ -77,5 +73,16 @@ app.use("/*", async (c, next) => {
 });
 
 app.get("/", (c) => c.text("OK"));
+
+app.post("/sign-in/social", (c) => {
+  const response = auth.api.signInSocial({
+    body: {
+      provider: "google",
+    },
+  });
+
+  console.log("response", response);
+  return c.json(response);
+});
 
 export default app;

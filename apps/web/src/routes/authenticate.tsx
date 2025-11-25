@@ -10,6 +10,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/authenticate")({
   component: RouteComponent,
@@ -24,9 +25,19 @@ function RouteComponent() {
   //   <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
   // );
 
+  async function requestGoogleAuth() {
+    console.log("clicked");
+
+    const data = await authClient.signIn.social({
+      provider: "google",
+    });
+
+    console.log(data);
+  }
+
   return (
     <div className="*:min-h-screen md:grid md:grid-cols-5">
-      <div className="flex flex-col gap-6 px-4 pt-[40%] md:col-span-3 md:px-20 md:pt-[20%]">
+      <div className="flex flex-col gap-6 px-4 pt-16 md:col-span-3 md:px-20 md:pt-[20%]">
         <div className="flex max-w-md flex-col gap-2">
           <h1 className="text-3xl">Welcome,</h1>
           <p className="mb-4 font-light text-sm">
@@ -35,7 +46,11 @@ function RouteComponent() {
           </p>
 
           <div className="flex flex-col gap-4 space-y-4">
-            <Button className="cursor-pointer py-6 text-sm" variant={"outline"}>
+            <Button
+              className="cursor-pointer py-6 text-sm"
+              onClick={() => requestGoogleAuth()}
+              variant={"outline"}
+            >
               <GoogleIcon className="size-6" /> Sign In with Google
             </Button>
 

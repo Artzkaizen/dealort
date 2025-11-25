@@ -1,5 +1,6 @@
 import { db } from "@dealort/db";
 import * as schema from "@dealort/db/schema/auth";
+import { env } from "@dealort/utils/env";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
@@ -14,8 +15,13 @@ export const auth = betterAuth<BetterAuthOptions>({
   },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      prompt: "consent",
+      clientId: env.GOOGLE_CLIENT_ID as string,
+      clientSecret: env.GOOGLE_CLIENT_SECRET as string,
+    },
+    github: {
+      clientId: env.GITHUB_CLIENT_ID as string,
+      clientSecret: env.GITHUB_CLIENT_SECRET as string,
     },
   },
   advanced: {
