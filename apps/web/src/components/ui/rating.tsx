@@ -3,9 +3,9 @@
 import { Slot } from "@radix-ui/react-slot";
 import { Star } from "lucide-react";
 import * as React from "react";
+import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
-import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
 
 const ROOT_NAME = "Rating";
 const ITEM_NAME = "RatingItem";
@@ -46,19 +46,19 @@ type ItemElement = React.ComponentRef<typeof RatingItem>;
 function getFocusIntent(
   event: React.KeyboardEvent<ItemElement>,
   dir?: Direction,
-  orientation?: Orientation,
+  orientation?: Orientation
 ) {
   const key = getDirectionAwareKey(event.key, dir);
   if (orientation === "horizontal" && ["ArrowUp", "ArrowDown"].includes(key))
-    return undefined;
+    return;
   if (orientation === "vertical" && ["ArrowLeft", "ArrowRight"].includes(key))
-    return undefined;
+    return;
   return MAP_KEY_TO_FOCUS_INTENT[key];
 }
 
 function focusFirst(
   candidates: React.RefObject<ItemElement | null>[],
-  preventScroll = false,
+  preventScroll = false
 ) {
   const PREVIOUSLY_FOCUSED_ELEMENT = document.activeElement;
   for (const candidateRef of candidates) {
@@ -113,7 +113,7 @@ function createStore(
   listenersRef: React.RefObject<Set<() => void>>,
   stateRef: React.RefObject<StoreState>,
   onValueChange?: (value: number) => void,
-  onHover?: (value: number | null) => void,
+  onHover?: (value: number | null) => void
 ): Store {
   const store: Store = {
     subscribe: (cb) => {
@@ -171,7 +171,7 @@ function useStore<T>(selector: (state: StoreState) => T): T {
 
   const getSnapshot = React.useCallback(
     () => selector(store.getState()),
-    [store, selector],
+    [store, selector]
   );
 
   return React.useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
@@ -225,7 +225,7 @@ function useFocusContext(consumerName: string) {
   const context = React.useContext(FocusContext);
   if (!context) {
     throw new Error(
-      `\`${consumerName}\` must be used within \`FocusProvider\``,
+      `\`${consumerName}\` must be used within \`FocusProvider\``
     );
   }
   return context;
@@ -267,7 +267,7 @@ function RatingRoot(props: RatingRootProps) {
 
   const store = React.useMemo(
     () => createStore(listenersRef, stateRef, onValueChange, onHover),
-    [listenersRef, stateRef, onValueChange, onHover],
+    [listenersRef, stateRef, onValueChange, onHover]
   );
 
   return (
@@ -315,7 +315,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
   const currentValue = useStore((state) => state.value);
 
   const [formTrigger, setFormTrigger] = React.useState<HTMLDivElement | null>(
-    null,
+    null
   );
   const composedRef = useComposedRefs(ref, (node) => setFormTrigger(node));
 
@@ -365,23 +365,25 @@ function RatingRootImpl(props: RatingRootImplProps) {
     itemsRef.current.delete(id);
   }, []);
 
-  const getItems = React.useCallback(() => {
-    return Array.from(itemsRef.current.values())
-      .filter((item) => item.ref.current)
-      .sort((a, b) => {
-        const elementA = a.ref.current;
-        const elementB = b.ref.current;
-        if (!elementA || !elementB) return 0;
-        const position = elementA.compareDocumentPosition(elementB);
-        if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
-          return -1;
-        }
-        if (position & Node.DOCUMENT_POSITION_PRECEDING) {
-          return 1;
-        }
-        return 0;
-      });
-  }, []);
+  const getItems = React.useCallback(
+    () =>
+      Array.from(itemsRef.current.values())
+        .filter((item) => item.ref.current)
+        .sort((a, b) => {
+          const elementA = a.ref.current;
+          const elementB = b.ref.current;
+          if (!(elementA && elementB)) return 0;
+          const position = elementA.compareDocumentPosition(elementB);
+          if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
+            return -1;
+          }
+          if (position & Node.DOCUMENT_POSITION_PRECEDING) {
+            return 1;
+          }
+          return 0;
+        }),
+    []
+  );
 
   const onBlur = React.useCallback(
     (event: React.FocusEvent<HTMLDivElement>) => {
@@ -390,7 +392,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
 
       setIsTabbingBackOut(false);
     },
-    [rootProps.onBlur],
+    [rootProps.onBlur]
   );
 
   const onFocus = React.useCallback(
@@ -409,15 +411,15 @@ function RatingRootImpl(props: RatingRootImplProps) {
 
         if (!entryFocusEvent.defaultPrevented) {
           const items = Array.from(itemsRef.current.values()).filter(
-            (item) => !item.disabled,
+            (item) => !item.disabled
           );
           const selectedItem = items.find(
-            (item) => item.value === currentValue,
+            (item) => item.value === currentValue
           );
           const currentItem = items.find((item) => item.id === tabStopId);
 
           const candidateItems = [selectedItem, currentItem, ...items].filter(
-            Boolean,
+            Boolean
           ) as ItemData[];
           const candidateRefs = candidateItems.map((item) => item.ref);
           focusFirst(candidateRefs, false);
@@ -425,7 +427,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
       }
       isClickFocusRef.current = false;
     },
-    [rootProps.onFocus, isTabbingBackOut, currentValue, tabStopId],
+    [rootProps.onFocus, isTabbingBackOut, currentValue, tabStopId]
   );
 
   const onMouseDown = React.useCallback(
@@ -436,7 +438,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
 
       isClickFocusRef.current = true;
     },
-    [rootProps.onMouseDown],
+    [rootProps.onMouseDown]
   );
 
   const contextValue = React.useMemo<RatingContextValue>(
@@ -465,7 +467,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
       max,
       step,
       clearable,
-    ],
+    ]
   );
 
   const focusContextValue = React.useMemo<FocusContextValue>(
@@ -488,7 +490,7 @@ function RatingRootImpl(props: RatingRootImplProps) {
       onItemRegister,
       onItemUnregister,
       getItems,
-    ],
+    ]
   );
 
   const RootPrimitive = asChild ? Slot : "div";
@@ -497,29 +499,29 @@ function RatingRootImpl(props: RatingRootImplProps) {
     <RatingContext.Provider value={contextValue}>
       <FocusContext.Provider value={focusContextValue}>
         <RootPrimitive
-          id={rootId}
-          role="radiogroup"
           aria-orientation={orientation}
           data-disabled={disabled ? "" : undefined}
-          data-readonly={readOnly ? "" : undefined}
           data-orientation={orientation}
+          data-readonly={readOnly ? "" : undefined}
           data-slot="rating"
           dir={dir}
+          id={rootId}
+          role="radiogroup"
           tabIndex={isTabbingBackOut || focusableItemCount === 0 ? -1 : 0}
           {...rootProps}
-          ref={composedRef}
           className={cn(
             "flex gap-1 text-primary outline-none",
             orientation === "horizontal"
               ? "flex-row items-center"
               : "flex-col items-start",
-            className,
+            className
           )}
           onBlur={onBlur}
           onFocus={onFocus}
           onMouseDown={onMouseDown}
+          ref={composedRef}
         />
-        <svg width="0" height="0" style={{ position: "absolute" }}>
+        <svg height="0" style={{ position: "absolute" }} width="0">
           <defs>
             <linearGradient id={getPartialFillGradientId(rootId, step)}>
               {dir === "rtl" ? (
@@ -538,13 +540,13 @@ function RatingRootImpl(props: RatingRootImplProps) {
         </svg>
         {isFormControl && (
           <VisuallyHiddenInput
-            type="hidden"
             control={formTrigger}
-            name={name}
-            value={currentValue}
             disabled={disabled}
+            name={name}
             readOnly={readOnly}
             required={required}
+            type="hidden"
+            value={currentValue}
           />
         )}
       </FocusContext.Provider>
@@ -625,7 +627,7 @@ function RatingItem(props: RatingItemProps) {
       itemProps.onClick?.(event);
       if (event.defaultPrevented) return;
 
-      if (!isDisabled && !isReadOnly) {
+      if (!(isDisabled || isReadOnly)) {
         let newValue = itemValue;
 
         if (step < 1) {
@@ -637,10 +639,8 @@ function RatingItem(props: RatingItemProps) {
             if (!isLeftHalf) {
               newValue = itemValue - step;
             }
-          } else {
-            if (isLeftHalf) {
-              newValue = itemValue - step;
-            }
+          } else if (isLeftHalf) {
+            newValue = itemValue - step;
           }
         }
 
@@ -661,7 +661,7 @@ function RatingItem(props: RatingItemProps) {
       store,
       context.dir,
       itemProps.onClick,
-    ],
+    ]
   );
 
   const onMouseEnter = React.useCallback(
@@ -669,7 +669,7 @@ function RatingItem(props: RatingItemProps) {
       itemProps.onMouseEnter?.(event);
       if (event.defaultPrevented) return;
 
-      if (!isDisabled && !isReadOnly) {
+      if (!(isDisabled || isReadOnly)) {
         let hoverValue = itemValue;
 
         if (step < 1) {
@@ -681,10 +681,8 @@ function RatingItem(props: RatingItemProps) {
             if (!isLeftHalf) {
               hoverValue = itemValue - step;
             }
-          } else {
-            if (isLeftHalf) {
-              hoverValue = itemValue - step;
-            }
+          } else if (isLeftHalf) {
+            hoverValue = itemValue - step;
           }
         }
 
@@ -699,7 +697,7 @@ function RatingItem(props: RatingItemProps) {
       store,
       context.dir,
       itemProps.onMouseEnter,
-    ],
+    ]
   );
 
   const onMouseMove = React.useCallback(
@@ -707,14 +705,14 @@ function RatingItem(props: RatingItemProps) {
       itemProps.onMouseMove?.(event);
       if (event.defaultPrevented) return;
 
-      if (!isDisabled && !isReadOnly && step < 1) {
+      if (!(isDisabled || isReadOnly) && step < 1) {
         const rect = event.currentTarget.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const isLeftHalf = mouseX < rect.width / 2;
 
         let hoverValue = itemValue;
         if (context.dir === "rtl") {
-          hoverValue = !isLeftHalf ? itemValue - step : itemValue;
+          hoverValue = isLeftHalf ? itemValue : itemValue - step;
         } else {
           hoverValue = isLeftHalf ? itemValue - step : itemValue;
         }
@@ -730,7 +728,7 @@ function RatingItem(props: RatingItemProps) {
       store,
       context.dir,
       itemProps.onMouseMove,
-    ],
+    ]
   );
 
   const onMouseLeave = React.useCallback(
@@ -738,11 +736,11 @@ function RatingItem(props: RatingItemProps) {
       itemProps.onMouseLeave?.(event);
       if (event.defaultPrevented) return;
 
-      if (!isDisabled && !isReadOnly) {
+      if (!(isDisabled || isReadOnly)) {
         store.setState("hoveredValue", null);
       }
     },
-    [isDisabled, isReadOnly, store, itemProps.onMouseLeave],
+    [isDisabled, isReadOnly, store, itemProps.onMouseLeave]
   );
 
   const onFocus = React.useCallback(
@@ -755,8 +753,7 @@ function RatingItem(props: RatingItemProps) {
       const isKeyboardFocus = !isMouseClickRef.current;
 
       if (
-        !isDisabled &&
-        !isReadOnly &&
+        !(isDisabled || isReadOnly) &&
         activationMode !== "manual" &&
         isKeyboardFocus
       ) {
@@ -777,7 +774,7 @@ function RatingItem(props: RatingItemProps) {
       itemValue,
       store,
       itemProps.onFocus,
-    ],
+    ]
   );
 
   const onKeyDown = React.useCallback(
@@ -790,7 +787,7 @@ function RatingItem(props: RatingItemProps) {
         activationMode === "manual"
       ) {
         event.preventDefault();
-        if (!isDisabled && !isReadOnly && itemRef.current) {
+        if (!(isDisabled || isReadOnly) && itemRef.current) {
           itemRef.current.click();
         }
         return;
@@ -806,7 +803,7 @@ function RatingItem(props: RatingItemProps) {
       const focusIntent = getFocusIntent(
         event,
         context.dir,
-        context.orientation,
+        context.orientation
       );
 
       if (focusIntent !== undefined) {
@@ -822,7 +819,7 @@ function RatingItem(props: RatingItemProps) {
         } else if (focusIntent === "prev" || focusIntent === "next") {
           if (focusIntent === "prev") candidateRefs.reverse();
           const currentIndex = candidateRefs.findIndex(
-            (ref) => ref.current === event.currentTarget,
+            (ref) => ref.current === event.currentTarget
           );
           candidateRefs = candidateRefs.slice(currentIndex + 1);
         }
@@ -838,7 +835,7 @@ function RatingItem(props: RatingItemProps) {
       isDisabled,
       isReadOnly,
       itemProps.onKeyDown,
-    ],
+    ]
   );
 
   const onMouseDown = React.useCallback(
@@ -854,7 +851,7 @@ function RatingItem(props: RatingItemProps) {
         focusContext.onItemFocus(itemId);
       }
     },
-    [focusContext, itemId, isDisabled, itemProps.onMouseDown],
+    [focusContext, itemId, isDisabled, itemProps.onMouseDown]
   );
 
   const dataState: DataState = isFilled
@@ -867,27 +864,20 @@ function RatingItem(props: RatingItemProps) {
 
   return (
     <ItemPrimitive
-      id={itemId}
-      role="radio"
-      type="button"
       aria-checked={isFilled}
       aria-posinset={itemValue}
       aria-setsize={context.max}
       data-disabled={isDisabled ? "" : undefined}
-      data-readonly={isReadOnly ? "" : undefined}
-      data-state={isFilled ? "full" : isPartiallyFilled ? "partial" : "empty"}
       data-hovered={isHovered ? "" : undefined}
+      data-readonly={isReadOnly ? "" : undefined}
       data-slot="rating-item"
+      data-state={isFilled ? "full" : isPartiallyFilled ? "partial" : "empty"}
       disabled={isDisabled}
+      id={itemId}
+      role="radio"
       tabIndex={isTabStop ? 0 : -1}
+      type="button"
       {...itemProps}
-      ref={composedRef}
-      style={{
-        ...itemProps.style,
-        ...(isPartiallyFilled && {
-          "--partial-fill": `url(#${getPartialFillGradientId(context.id, step)})`,
-        }),
-      }}
       className={cn(
         "inline-flex items-center justify-center rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         "[&_svg:not([class*='size-'])]:size-full [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:transition-colors [&_svg]:duration-200 data-[state=empty]:[&_svg]:fill-transparent data-[state=full]:[&_svg]:fill-current data-[state=partial]:[&_svg]:fill-[var(--partial-fill)]",
@@ -896,15 +886,22 @@ function RatingItem(props: RatingItemProps) {
           : context.size === "lg"
             ? "size-6"
             : "size-5",
-        className,
+        className
       )}
       onClick={onClick}
       onFocus={onFocus}
       onKeyDown={onKeyDown}
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
-      onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
+      onMouseMove={onMouseMove}
+      ref={composedRef}
+      style={{
+        ...itemProps.style,
+        ...(isPartiallyFilled && {
+          "--partial-fill": `url(#${getPartialFillGradientId(context.id, step)})`,
+        }),
+      }}
     >
       {typeof children === "function"
         ? children(dataState)

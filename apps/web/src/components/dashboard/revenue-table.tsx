@@ -159,7 +159,6 @@ type RevenueRow = (typeof data)[number];
 import { Suspense } from "react";
 import { Checkbox } from "@/components/ui/checkbox"; // Make sure your Checkbox import path is correct
 import { useDataGrid } from "@/hooks/use-data-grid";
-import { DataGrid } from "../data-grid/data-grid";
 import Loader from "../loader";
 import { Button } from "../ui/button";
 import {

@@ -9,7 +9,7 @@ export const auth = betterAuth<BetterAuthOptions>({
     provider: "sqlite",
     schema,
   }),
-  trustedOrigins: [process.env.CORS_ORIGIN || ""],
+  trustedOrigins: [env.CORS_ORIGIN],
   emailAndPassword: {
     enabled: true,
   },

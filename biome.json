@@ -27,8 +27,8 @@
   "linter": {
     "rules": {
       "nursery": {
-      "noShadow": "off"
-    },
+        "noShadow": "off"
+      },
       "style": {
         "useBlockStatements": "off",
         "useConsistentTypeDefinitions": {

@@ -25,6 +25,6 @@
     "dotenv": "catalog:",
     "zod": "catalog:",
     "@dealort/db": "workspace:*",
-        "@dealort/utils": "workspace:*"
+    "@dealort/utils": "workspace:*"
   }
 }

@@ -16,7 +16,7 @@ interface VisuallyHiddenInputProps<T = InputValue>
 }
 
 function VisuallyHiddenInput<T = InputValue>(
-  props: VisuallyHiddenInputProps<T>,
+  props: VisuallyHiddenInputProps<T>
 ) {
   const {
     control,
@@ -30,7 +30,7 @@ function VisuallyHiddenInput<T = InputValue>(
 
   const isCheckInput = React.useMemo(
     () => type === "checkbox" || type === "radio" || type === "switch",
-    [type],
+    [type]
   );
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -70,7 +70,7 @@ function VisuallyHiddenInput<T = InputValue>(
     if (typeof window === "undefined") return;
 
     const resizeObserver = new ResizeObserver((entries) => {
-      if (!Array.isArray(entries) || !entries.length) return;
+      if (!(Array.isArray(entries) && entries.length)) return;
 
       const entry = entries[0];
       if (!entry) return;
@@ -125,8 +125,8 @@ function VisuallyHiddenInput<T = InputValue>(
     }
   }, [prevValue, value, checked, bubbles, isCheckInput]);
 
-  const composedStyle = React.useMemo<React.CSSProperties>(() => {
-    return {
+  const composedStyle = React.useMemo<React.CSSProperties>(
+    () => ({
       ...style,
       ...(controlSize.width !== undefined && controlSize.height !== undefined
         ? controlSize
@@ -141,18 +141,19 @@ function VisuallyHiddenInput<T = InputValue>(
       position: "absolute",
       whiteSpace: "nowrap",
       width: "1px",
-    };
-  }, [style, controlSize]);
+    }),
+    [style, controlSize]
+  );
 
   return (
     <input
       type={type}
       {...inputProps}
-      ref={inputRef}
       aria-hidden={isCheckInput}
-      tabIndex={-1}
       defaultChecked={isCheckInput ? checked : undefined}
+      ref={inputRef}
       style={composedStyle}
+      tabIndex={-1}
     />
   );
 }

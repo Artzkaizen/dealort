@@ -14,10 +14,10 @@
   "scripts": {
     "build": "tsdown",
     "db:local": "turso dev --db-file local.db",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:push": "bun run --env-file ../../.env drizzle-kit push",
+    "db:studio": "bun run --env-file ../../.env drizzle-kit studio",
+    "db:generate": "bun run --env-file ../../.env drizzle-kit generate",
+    "db:migrate": "bun run --env-file ../../.env drizzle-kit migrate"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.2",
@@ -27,7 +27,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-        "@dealort/utils": "workspace:*",
+    "@dealort/utils": "workspace:*",
     "drizzle-orm": "^0.44.2",
     "@libsql/client": "^0.14.0",
     "dotenv": "catalog:",
