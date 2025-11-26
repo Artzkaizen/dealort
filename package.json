@@ -31,9 +31,7 @@
     "db:push": "turbo -F @dealort/db db:push",
     "db:studio": "turbo -F @dealort/db db:studio",
     "db:generate": "turbo -F @dealort/db db:generate",
-    "db:migrate": "turbo -F @dealort/db db:migrate",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "db:migrate": "turbo -F @dealort/db db:migrate"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
@@ -42,7 +40,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
     "@types/bun": "^1.2.6",
-    "prettier": "^3.6.2",
     "tsdown": "^0.15.5",
     "turbo": "^2.5.4",
     "typescript": "^5.9.3",
