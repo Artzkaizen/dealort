@@ -12,16 +12,16 @@ import { useDashboardStore } from "@/stores/dashboard-store";
 
 export const Route = createFileRoute("/dashboard/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const session = await authClient.getSession();
-    // if (!session.data) {
-    //   redirect({
-    //     to: "/login",
-    //     throw: true,
-    //   });
-    // }
-    return { session };
-  },
+  // beforeLoad: async () => {
+  //   const session = await authClient.getSession();
+  //   // if (!session.data) {
+  //   //   redirect({
+  //   //     to: "/login",
+  //   //     throw: true,
+  //   //   });
+  //   // }
+  //   return { session };
+  // },
 });
 
 function DashboardSkeleton() {

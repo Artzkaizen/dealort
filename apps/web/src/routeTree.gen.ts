@@ -15,8 +15,8 @@ import { Route as PublicLayoutRouteImport } from './routes/_public/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as DashboardFileTestRouteImport } from './routes/dashboard/file-test'
-import { Route as PublicProductsRouteImport } from './routes/_public/products'
 import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
+import { Route as PublicProductsIndexRouteImport } from './routes/_public/products/index'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
 
@@ -49,14 +49,14 @@ const DashboardFileTestRoute = DashboardFileTestRouteImport.update({
   path: '/file-test',
   getParentRoute: () => DashboardLayoutRoute,
 } as any)
-const PublicProductsRoute = PublicProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
-  getParentRoute: () => PublicLayoutRoute,
-} as any)
 const PublicLaunchesRoute = PublicLaunchesRouteImport.update({
   id: '/launches',
   path: '/launches',
+  getParentRoute: () => PublicLayoutRoute,
+} as any)
+const PublicProductsIndexRoute = PublicProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
 const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
@@ -75,21 +75,21 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
-  '/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
   '/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/products': typeof PublicProductsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesByTo {
   '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
-  '/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/products': typeof PublicProductsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesById {
@@ -98,11 +98,11 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
   '/authenticate': typeof AuthenticateRoute
   '/_public/launches': typeof PublicLaunchesRoute
-  '/_public/products': typeof PublicProductsRoute
   '/dashboard/file-test': typeof DashboardFileTestRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/_public/products/': typeof PublicProductsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRouteTypes {
@@ -111,21 +111,21 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/authenticate'
     | '/launches'
-    | '/products'
     | '/dashboard/file-test'
     | '/'
     | '/dashboard/'
     | '/dashboard/products/new'
+    | '/products'
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/authenticate'
     | '/launches'
-    | '/products'
     | '/dashboard/file-test'
     | '/'
     | '/dashboard'
     | '/dashboard/products/new'
+    | '/products'
     | '/dashboard/test/test-a/test-b/test-c/test'
   id:
     | '__root__'
@@ -133,11 +133,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/authenticate'
     | '/_public/launches'
-    | '/_public/products'
     | '/dashboard/file-test'
     | '/_public/'
     | '/dashboard/'
     | '/dashboard/products/new'
+    | '/_public/products/'
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesById: FileRoutesById
 }
@@ -191,18 +191,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardFileTestRouteImport
       parentRoute: typeof DashboardLayoutRoute
     }
-    '/_public/products': {
-      id: '/_public/products'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof PublicProductsRouteImport
-      parentRoute: typeof PublicLayoutRoute
-    }
     '/_public/launches': {
       id: '/_public/launches'
       path: '/launches'
       fullPath: '/launches'
       preLoaderRoute: typeof PublicLaunchesRouteImport
+      parentRoute: typeof PublicLayoutRoute
+    }
+    '/_public/products/': {
+      id: '/_public/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof PublicProductsIndexRouteImport
       parentRoute: typeof PublicLayoutRoute
     }
     '/dashboard/products/new': {
@@ -224,14 +224,14 @@ declare module '@tanstack/react-router' {
 
 interface PublicLayoutRouteChildren {
   PublicLaunchesRoute: typeof PublicLaunchesRoute
-  PublicProductsRoute: typeof PublicProductsRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicProductsIndexRoute: typeof PublicProductsIndexRoute
 }
 
 const PublicLayoutRouteChildren: PublicLayoutRouteChildren = {
   PublicLaunchesRoute: PublicLaunchesRoute,
-  PublicProductsRoute: PublicProductsRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicProductsIndexRoute: PublicProductsIndexRoute,
 }
 
 const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(

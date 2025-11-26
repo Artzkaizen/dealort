@@ -414,7 +414,7 @@ export function RevenueTable() {
     enableSearch: true,
   });
 
-  return <DataGrid {...dataGridProps} height={340} table={table} />;
+  // return <DataGrid {...dataGridProps} height={340} table={table} />;
 
   return (
     <div>
