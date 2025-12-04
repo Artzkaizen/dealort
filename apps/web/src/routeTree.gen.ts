@@ -9,22 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticateRouteImport } from './routes/authenticate'
 import { Route as DashboardLayoutRouteImport } from './routes/dashboard/layout'
 import { Route as PublicLayoutRouteImport } from './routes/_public/layout'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
-import { Route as DashboardFileTestRouteImport } from './routes/dashboard/file-test'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
 import { Route as PublicProductsIndexRouteImport } from './routes/_public/products/index'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
 
-const AuthenticateRoute = AuthenticateRouteImport.update({
-  id: '/authenticate',
-  path: '/authenticate',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardLayoutRoute = DashboardLayoutRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,10 +38,10 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
-const DashboardFileTestRoute = DashboardFileTestRouteImport.update({
-  id: '/file-test',
-  path: '/file-test',
-  getParentRoute: () => DashboardLayoutRoute,
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PublicLaunchesRoute = PublicLaunchesRouteImport.update({
   id: '/launches',
@@ -73,9 +67,8 @@ const DashboardTestTestATestBTestCTestRoute =
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
-  '/dashboard/file-test': typeof DashboardFileTestRoute
+  '/auth/login': typeof AuthLoginRoute
   '/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -83,9 +76,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesByTo {
-  '/authenticate': typeof AuthenticateRoute
   '/launches': typeof PublicLaunchesRoute
-  '/dashboard/file-test': typeof DashboardFileTestRoute
+  '/auth/login': typeof AuthLoginRoute
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -96,9 +88,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
-  '/authenticate': typeof AuthenticateRoute
   '/_public/launches': typeof PublicLaunchesRoute
-  '/dashboard/file-test': typeof DashboardFileTestRoute
+  '/auth/login': typeof AuthLoginRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
@@ -109,9 +100,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dashboard'
-    | '/authenticate'
     | '/launches'
-    | '/dashboard/file-test'
+    | '/auth/login'
     | '/'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -119,9 +109,8 @@ export interface FileRouteTypes {
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/authenticate'
     | '/launches'
-    | '/dashboard/file-test'
+    | '/auth/login'
     | '/'
     | '/dashboard'
     | '/dashboard/products/new'
@@ -131,9 +120,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_public'
     | '/dashboard'
-    | '/authenticate'
     | '/_public/launches'
-    | '/dashboard/file-test'
+    | '/auth/login'
     | '/_public/'
     | '/dashboard/'
     | '/dashboard/products/new'
@@ -144,18 +132,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   PublicLayoutRoute: typeof PublicLayoutRouteWithChildren
   DashboardLayoutRoute: typeof DashboardLayoutRouteWithChildren
-  AuthenticateRoute: typeof AuthenticateRoute
+  AuthLoginRoute: typeof AuthLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/authenticate': {
-      id: '/authenticate'
-      path: '/authenticate'
-      fullPath: '/authenticate'
-      preLoaderRoute: typeof AuthenticateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -184,12 +165,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicLayoutRoute
     }
-    '/dashboard/file-test': {
-      id: '/dashboard/file-test'
-      path: '/file-test'
-      fullPath: '/dashboard/file-test'
-      preLoaderRoute: typeof DashboardFileTestRouteImport
-      parentRoute: typeof DashboardLayoutRoute
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_public/launches': {
       id: '/_public/launches'
@@ -239,14 +220,12 @@ const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
 )
 
 interface DashboardLayoutRouteChildren {
-  DashboardFileTestRoute: typeof DashboardFileTestRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardProductsNewRoute: typeof DashboardProductsNewRoute
   DashboardTestTestATestBTestCTestRoute: typeof DashboardTestTestATestBTestCTestRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
-  DashboardFileTestRoute: DashboardFileTestRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardProductsNewRoute: DashboardProductsNewRoute,
   DashboardTestTestATestBTestCTestRoute: DashboardTestTestATestBTestCTestRoute,
@@ -259,7 +238,7 @@ const DashboardLayoutRouteWithChildren = DashboardLayoutRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   PublicLayoutRoute: PublicLayoutRouteWithChildren,
   DashboardLayoutRoute: DashboardLayoutRouteWithChildren,
-  AuthenticateRoute: AuthenticateRoute,
+  AuthLoginRoute: AuthLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -13,6 +13,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     CORS_ORIGIN: z.string().min(1),
     DATABASE_URL: z.string().startsWith("file:").min(1), // Use startsWith to validate the prefix
+    ARCJET_KEY: z.string().optional(), // Optional for development, required for production
   },
 
   client: {

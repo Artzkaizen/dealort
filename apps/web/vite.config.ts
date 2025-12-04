@@ -17,4 +17,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
+  // server: {
+  //   headers: {
+  //     // Allow images from Google and GitHub user content
+  //     "Content-Security-Policy": [
+  //       "default-src 'self';",
+  //       "img-src 'self' https://lh3.googleusercontent.com https://avatars.githubusercontent.com data: blob:;",
+  //       "script-src 'self';",
+  //       "style-src 'self' 'unsafe-inline';",
+  //       "connect-src *;",
+  //       "font-src 'self';",
+  //       "frame-src 'self';",
+  //     ].join(" "),
+  //   },
+  // },
 });

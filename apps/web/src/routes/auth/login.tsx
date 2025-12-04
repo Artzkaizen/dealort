@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Autoplay from "embla-carousel-autoplay";
+import { FingerprintPatternIcon } from "lucide-react";
 import { GithubIcon, GoogleIcon } from "@/assets/icons";
 import InvestmentSVG from "@/assets/illustrations/auth-investment.svg";
 import PitchingSVG from "@/assets/illustrations/auth-pitching.svg";
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/authenticate")({
+export const Route = createFileRoute("/auth/login")({
   component: RouteComponent,
 });
 
@@ -26,19 +27,19 @@ function RouteComponent() {
   // );
 
   async function requestGoogleAuth() {
-    try {
-      const data = await authClient.signIn.social({
-        provider: "google",
-        callbackURL: `${window.location.origin}/dashboard`,
-        newUserCallbackURL: `${window.location.origin}/dashboard/profile`,
-      });
+    return await authClient.signIn.social({
+      provider: "google",
+      callbackURL: `${window.location.origin}/dashboard`,
+      newUserCallbackURL: `${window.location.origin}/dashboard/settings`,
+    });
+  }
 
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
-
-    console.log("clicked");
+  async function requestGithubAuth() {
+    return await authClient.signIn.social({
+      provider: "github",
+      callbackURL: `${window.location.origin}/dashboard`,
+      newUserCallbackURL: `${window.location.origin}/dashboard/settings`,
+    });
   }
 
   return (
@@ -60,16 +61,25 @@ function RouteComponent() {
               <GoogleIcon className="size-6" /> Sign In with Google
             </Button>
 
-            <div className="my-4 flex items-center gap-1">
-              <span className="grow border" />
-              <span className="font-light text-sm">OR</span>
-              <span className="grow border" />
-            </div>
-
-            <Button className="cursor-pointer py-6 text-sm" variant={"default"}>
-              <GithubIcon className="size-6 invert" /> Sign In with Github
+            <Button
+              className="cursor-pointer py-6 text-sm"
+              onClick={() => requestGithubAuth()}
+              variant={"default"}
+            >
+              <GithubIcon className="size-6 invert dark:invert-0" /> Sign In
+              with Github
             </Button>
           </div>
+
+          <div className="my-4 flex items-center gap-1">
+            <span className="grow border" />
+            <span className="font-light text-sm">OR</span>
+            <span className="grow border" />
+          </div>
+
+          <Button className="cursor-pointer py-6 text-sm" variant={"secondary"}>
+            <FingerprintPatternIcon className="size-6" /> Use Passkey
+          </Button>
         </div>
       </div>
       <div className="col-span-2 min-h-screen max-md:hidden">

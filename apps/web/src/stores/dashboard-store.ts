@@ -23,4 +23,3 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   // user: {},
   // setUser: (user: DashboardState['user']) => set({ user }),
 }));
-

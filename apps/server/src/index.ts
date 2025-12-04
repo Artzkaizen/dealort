@@ -1,4 +1,5 @@
 // dotenv.config({ path: '../../.env' });
+
 import { createContext } from "@dealort/api/context";
 import { appRouter } from "@dealort/api/routers/index";
 import { auth } from "@dealort/auth";
@@ -14,7 +15,45 @@ import { logger } from "hono/logger";
 
 const app = new Hono();
 
+// Initialize Arcjet protection
+
 app.use(logger());
+
+// Apply Arcjet protection to all routes
+app.use("*", async (c, next) => {
+  // Skip Arcjet if no key is configured (for local development)
+  if (!env.ARCJET_KEY) {
+    await next();
+    return;
+  }
+
+  // Create adapter context for Arcjet
+  let body: string | undefined;
+  try {
+    body = await c.req.text();
+  } catch {
+    body = undefined;
+  }
+
+  const decision = await aj.protect(
+    {
+      method: c.req.method,
+      path: new URL(c.req.url).pathname,
+      headers: c.req.raw.headers,
+      ip:
+        c.req.header("x-forwarded-for") ||
+        c.req.header("x-real-ip") ||
+        undefined,
+      getBody: async () => body,
+    },
+    {}
+  );
+  if (decision.isDenied()) {
+    return c.text("Access Denied", 403);
+  }
+  await next();
+});
+
 app.use(
   "*",
   cors({
@@ -28,27 +67,6 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.get("/", (c) => c.text("OK"));
-
-app.post("/sign-in/social", async (c) => {
-  console.log("reached");
-  try {
-    // const body = await c.req.parseBody();
-    // console.log("body", body);
-
-    // const response = await auth.api.signInSocial({
-    //   body: {
-    //     provider: "google",
-    //     // callbackURL: `${env.CORS_ORIGIN}/dashboard`,
-    //     // newUserCallbackURL: `${env.CORS_ORIGIN}/dashboard/profile`,
-    //   },
-    // });
-
-    console.log("response");
-  return c.text("gdvshgd");
-  } catch (error) {
-    console.error(error);
-  }
-});
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [

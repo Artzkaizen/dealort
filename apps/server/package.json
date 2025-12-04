@@ -17,6 +17,7 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:",
+    "arcjet": "catalog:",
     "@dealort/api": "workspace:*",
     "@dealort/auth": "workspace:*",
     "@dealort/db": "workspace:*",

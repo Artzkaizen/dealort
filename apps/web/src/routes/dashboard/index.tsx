@@ -122,7 +122,7 @@ function RouteComponent() {
           </Button>
           <Button
             className={cn("cursor-pointer bg-popover text-xs", {
-              "bg-foreground text-background hover:bg-initial hover:text-background/90 dark:bg-foreground dark:text-background":
+              "bg-foreground text-background hover:bg-initial hover:text-background/90 dark:bg-red-500 dark:text-red-400":
                 analyticsDuration === "3 months",
             })}
             onClick={() => setAnalyticsDuration("3 months")}
