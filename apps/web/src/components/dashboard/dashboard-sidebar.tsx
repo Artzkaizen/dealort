@@ -12,6 +12,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -78,11 +85,6 @@ function UserProfile() {
     });
   };
 
-  // Handle settings navigation
-  const handleSettings = () => {
-    navigate({ to: "/dashboard" });
-  };
-
   if (isPending) {
     return (
       <div className="flex items-center justify-between border-t px-3 py-2">
@@ -141,13 +143,15 @@ function UserProfile() {
       <PopoverContent className="size-fit p-2" side="right">
         <div className="flex min-w-[120px] flex-col gap-1">
           <Button
+            asChild
             className="w-full justify-start"
-            onClick={handleSettings}
             size="sm"
             variant="ghost"
           >
-            <Settings className="mr-2 size-4" />
-            Settings
+            <Link to="/dashboard/settings">
+              <Settings className="mr-2 size-4" />
+              Settings
+            </Link>
           </Button>
           <Button
             className="w-full justify-start text-destructive hover:text-destructive"
@@ -164,8 +168,8 @@ function UserProfile() {
   );
 }
 
-// Main Sidebar component
-export function DashboardSidebar() {
+// Sidebar content component (reusable for both normal and overlay modes)
+function SidebarContentInner() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { location } = useRouterState();
@@ -186,58 +190,94 @@ export function DashboardSidebar() {
   };
 
   return (
-    // Only show sidebar on large screens (lg breakpoint and above)
+    <>
+      {/* Sidebar Header with toggle button */}
+      <SidebarHeader className="h-15 border-b px-2">
+        <div className="flex w-full items-center justify-between">
+          <h2 className="flex w-full items-center gap-1" id="">
+            <Button aria-label="dealort dashboard" className="max-h-8" />
+            {!isCollapsed && "Dealort"}
+          </h2>
+        </div>
+      </SidebarHeader>
+
+      {/* Sidebar Content with navigation links */}
+      <SidebarContent className="pl-2">
+        <SidebarMenu>
+          {dashboardLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = isLinkActive(link.path);
+            return (
+              <SidebarMenuItem key={link.path}>
+                <SidebarMenuButton asChild>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        className={cn(
+                          "flex h-full items-center gap-3 rounded-none rounded-s-xl px-2 py-2 text-sm",
+                          {
+                            "border-foreground border-r-4 bg-secondary text-accent-foreground":
+                              isActive,
+                          }
+                        )}
+                        // @ts-expect-error - TanStack Router types are strict and some dashboard routes may not be registered yet
+                        to={link.path}
+                      >
+                        <Icon className="size-4 shrink-0" />
+                        <span className="truncate">{link.label}</span>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>{link.label}</TooltipContent>
+                  </Tooltip>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarContent>
+
+      {/* Sidebar Footer with user profile */}
+      <SidebarFooter>
+        <UserProfile />
+      </SidebarFooter>
+    </>
+  );
+}
+
+// Main Sidebar component
+export function DashboardSidebar() {
+  const { location } = useRouterState();
+  const currentPathname = location.pathname;
+  const isSettingsRoute = currentPathname.includes("/settings");
+  const { openMobile, setOpenMobile } = useSidebar();
+
+  // If on settings route, render as overlay (mobile-style)
+  if (isSettingsRoute) {
+    return (
+      <Sheet onOpenChange={setOpenMobile} open={openMobile}>
+        <SheetContent
+          className="w-[18rem] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          data-mobile="true"
+          data-sidebar="sidebar"
+          side="left"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Sidebar</SheetTitle>
+            <SheetDescription>Navigation sidebar</SheetDescription>
+          </SheetHeader>
+          <div className="flex h-full w-full flex-col">
+            <SidebarContentInner />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Normal sidebar rendering for non-settings routes
+  return (
     <div className="z-50">
       <Sidebar className="border-r" collapsible="icon">
-        {/* Sidebar Header with toggle button */}
-        <SidebarHeader className="h-15 border-b px-2">
-          <div className="flex w-full items-center justify-between">
-            <h2 className="flex w-full items-center gap-1" id="">
-              <Button aria-label="dealort dashboard" className="max-h-8" />
-              {!isCollapsed && "Dealort"}
-            </h2>
-          </div>
-        </SidebarHeader>
-
-        {/* Sidebar Content with navigation links */}
-        <SidebarContent className="pl-2">
-          <SidebarMenu>
-            {dashboardLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isLinkActive(link.path);
-              return (
-                <SidebarMenuItem key={link.path}>
-                  <SidebarMenuButton asChild>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link
-                          className={cn(
-                            "flex h-full items-center gap-3 rounded-none rounded-s-xl px-2 py-2 text-sm",
-                            {
-                              "border-foreground border-r-4 bg-secondary text-accent-foreground":
-                                isActive,
-                            }
-                          )}
-                          // @ts-expect-error - TanStack Router types are strict and some dashboard routes may not be registered yet
-                          to={link.path}
-                        >
-                          <Icon className="size-4 shrink-0" />
-                          <span className="truncate">{link.label}</span>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>{link.label}</TooltipContent>
-                    </Tooltip>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarContent>
-
-        {/* Sidebar Footer with user profile */}
-        <SidebarFooter>
-          <UserProfile />
-        </SidebarFooter>
+        <SidebarContentInner />
       </Sidebar>
     </div>
   );

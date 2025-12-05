@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import Autoplay from "embla-carousel-autoplay";
 import { FingerprintPatternIcon } from "lucide-react";
+import { useEffect } from "react";
 import { GithubIcon, GoogleIcon } from "@/assets/icons";
 import InvestmentSVG from "@/assets/illustrations/auth-investment.svg";
 import PitchingSVG from "@/assets/illustrations/auth-pitching.svg";
@@ -18,6 +19,8 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate({ from: "/auth/login" });
+
   // const [showSignIn, setShowSignIn] = useState(false);
 
   // return showSignIn ? (
@@ -25,6 +28,16 @@ function RouteComponent() {
   // ) : (
   //   <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
   // );
+
+  useEffect(() => {
+    authClient.getSession().then((session) => {
+      if (session.data?.user) {
+        navigate({
+          to: "/dashboard",
+        });
+      }
+    });
+  }, [navigate]);
 
   async function requestGoogleAuth() {
     return await authClient.signIn.social({

@@ -15,6 +15,8 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
+import { Route as DashboardSettingsLayoutRouteImport } from './routes/dashboard/settings/layout'
+import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as PublicProductsIndexRouteImport } from './routes/_public/products/index'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
@@ -48,6 +50,16 @@ const PublicLaunchesRoute = PublicLaunchesRouteImport.update({
   path: '/launches',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
+const DashboardSettingsLayoutRoute = DashboardSettingsLayoutRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardLayoutRoute,
+} as any)
+const DashboardSettingsIndexRoute = DashboardSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardSettingsLayoutRoute,
+} as any)
 const PublicProductsIndexRoute = PublicProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -67,12 +79,14 @@ const DashboardTestTestATestBTestCTestRoute =
 
 export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/dashboard/settings': typeof DashboardSettingsLayoutRouteWithChildren
   '/launches': typeof PublicLaunchesRoute
   '/auth/login': typeof AuthLoginRoute
   '/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/products': typeof PublicProductsIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesByTo {
@@ -82,30 +96,35 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/products': typeof PublicProductsIndexRoute
+  '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicLayoutRouteWithChildren
   '/dashboard': typeof DashboardLayoutRouteWithChildren
+  '/dashboard/settings': typeof DashboardSettingsLayoutRouteWithChildren
   '/_public/launches': typeof PublicLaunchesRoute
   '/auth/login': typeof AuthLoginRoute
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/_public/products/': typeof PublicProductsIndexRoute
+  '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/dashboard'
+    | '/dashboard/settings'
     | '/launches'
     | '/auth/login'
     | '/'
     | '/dashboard/'
     | '/dashboard/products/new'
     | '/products'
+    | '/dashboard/settings/'
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -115,17 +134,20 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/products/new'
     | '/products'
+    | '/dashboard/settings'
     | '/dashboard/test/test-a/test-b/test-c/test'
   id:
     | '__root__'
     | '/_public'
     | '/dashboard'
+    | '/dashboard/settings'
     | '/_public/launches'
     | '/auth/login'
     | '/_public/'
     | '/dashboard/'
     | '/dashboard/products/new'
     | '/_public/products/'
+    | '/dashboard/settings/'
     | '/dashboard/test/test-a/test-b/test-c/test'
   fileRoutesById: FileRoutesById
 }
@@ -179,6 +201,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLaunchesRouteImport
       parentRoute: typeof PublicLayoutRoute
     }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsLayoutRouteImport
+      parentRoute: typeof DashboardLayoutRoute
+    }
+    '/dashboard/settings/': {
+      id: '/dashboard/settings/'
+      path: '/'
+      fullPath: '/dashboard/settings/'
+      preLoaderRoute: typeof DashboardSettingsIndexRouteImport
+      parentRoute: typeof DashboardSettingsLayoutRoute
+    }
     '/_public/products/': {
       id: '/_public/products/'
       path: '/products'
@@ -219,13 +255,29 @@ const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
   PublicLayoutRouteChildren,
 )
 
+interface DashboardSettingsLayoutRouteChildren {
+  DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
+}
+
+const DashboardSettingsLayoutRouteChildren: DashboardSettingsLayoutRouteChildren =
+  {
+    DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
+  }
+
+const DashboardSettingsLayoutRouteWithChildren =
+  DashboardSettingsLayoutRoute._addFileChildren(
+    DashboardSettingsLayoutRouteChildren,
+  )
+
 interface DashboardLayoutRouteChildren {
+  DashboardSettingsLayoutRoute: typeof DashboardSettingsLayoutRouteWithChildren
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardProductsNewRoute: typeof DashboardProductsNewRoute
   DashboardTestTestATestBTestCTestRoute: typeof DashboardTestTestATestBTestCTestRoute
 }
 
 const DashboardLayoutRouteChildren: DashboardLayoutRouteChildren = {
+  DashboardSettingsLayoutRoute: DashboardSettingsLayoutRouteWithChildren,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardProductsNewRoute: DashboardProductsNewRoute,
   DashboardTestTestATestBTestCTestRoute: DashboardTestTestATestBTestCTestRoute,
