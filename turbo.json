@@ -45,7 +45,9 @@
     "GITHUB_CLIENT_SECRET",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "ARCJET_KEY"
+    "ARCJET_KEY",
+    "RESEND_API_KEY",
+    "RESEND_FROM_EMAIL"
   ],
   "globalPassThroughEnv": [
     "DATABASE_URL",
@@ -55,6 +57,8 @@
     "GITHUB_CLIENT_SECRET",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "ARCJET_KEY"
+    "ARCJET_KEY",
+    "RESEND_API_KEY",
+    "RESEND_FROM_EMAIL"
   ]
 }

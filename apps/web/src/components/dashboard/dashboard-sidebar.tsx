@@ -33,13 +33,10 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-// Define dashboard navigation links with icons
-// Each link includes a path, label, and icon component
-// Note: Additional routes can be added as they are created in the router
 const dashboardLinks = [
   {
     path: "/dashboard" as const,
-    label: "Overview",
+    label: "Dashboard",
     icon: LayoutDashboard,
   },
   // Additional routes can be added here as they are created:

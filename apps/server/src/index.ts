@@ -61,8 +61,8 @@ app.use("*", async (c, next) => {
     return;
   }
 
-  let body: any;
-  let parsedBody: any;
+  let body: string | undefined;
+  let parsedBody: Record<string, unknown> | undefined;
   try {
     body = await c.req.text();
     if (body?.trim().startsWith("{")) {
@@ -85,7 +85,7 @@ app.use("*", async (c, next) => {
 
   const pathname = new URL(c.req.url).pathname;
 
-  let protectWith;
+  let protectWith: {};
   if (pathname.startsWith("/api/auth/sign-up")) {
     // Restrictive on sign-up
     if (
@@ -112,7 +112,12 @@ app.use("*", async (c, next) => {
       .withRule(slidingWindow(laxRateLimitSettings));
   }
 
-  const decision = await protectWith.protect({
+  // Ensure protectWith is typed properly and has the 'protect' method
+  if (typeof (protectWith as any).protect !== "function") {
+    throw new Error("protectWith is not properly configured");
+  }
+
+  const decision = await (protectWith as any).protect({
     method: c.req.method,
     path: pathname,
     headers: c.req.raw.headers,
@@ -157,6 +162,7 @@ app.use(
   })
 );
 
+// Auth route handler
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.get("/", (c) => c.text("OK"));

@@ -14,6 +14,8 @@ export const env = createEnv({
     CORS_ORIGIN: z.string().min(1),
     DATABASE_URL: z.string().startsWith("file:").min(1), // Use startsWith to validate the prefix
     ARCJET_KEY: z.string().optional(), // Optional for development, required for production
+    RESEND_API_KEY: z.string().min(1),
+    RESEND_FROM_EMAIL: z.string().email().optional(), // Optional, defaults to Resend domain
   },
 
   client: {

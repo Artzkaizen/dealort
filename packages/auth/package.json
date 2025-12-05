@@ -22,8 +22,11 @@
   },
   "dependencies": {
     "better-auth": "catalog:",
+    "@better-auth/passkey": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:",
+    "resend": "catalog:",
+    "drizzle-orm": "^0.44.2",
     "@dealort/db": "workspace:*",
     "@dealort/utils": "workspace:*"
   }

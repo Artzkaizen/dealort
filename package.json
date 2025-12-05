@@ -18,7 +18,9 @@
       "typescript": "^5.8.2",
       "tsdown": "^0.15.5",
       "@orpc/client": "^1.10.0",
-      "arcjet": "^1.0.0-beta.15"
+      "arcjet": "^1.0.0-beta.15",
+      "resend": "^4.0.0",
+      "@better-auth/passkey": "^1.4.5"
     }
   },
   "scripts": {
@@ -35,6 +37,7 @@
     "db:migrate": "turbo -F @dealort/db db:migrate"
   },
   "dependencies": {
+    "@better-auth/passkey": "^1.4.5",
     "dotenv": "^17.2.2",
     "zod": "^4.1.12"
   },

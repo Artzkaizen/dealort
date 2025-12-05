@@ -18,6 +18,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,7 @@ function RouteComponent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const { setOpen, setOpenMobile } = useSidebar();
 
   // Helper function to determine if a link is active
   const isLinkActive = (linkPath: string) => {
@@ -104,6 +106,11 @@ function RouteComponent() {
     if (!container) return;
     container.scrollBy({ left: 200, behavior: "smooth" });
   }, []);
+
+  useEffect(() => {
+    setOpen(true);
+    // setOpenMobile(true);
+  }, [setOpen]);
 
   // Set up scroll listener
   useEffect(() => {

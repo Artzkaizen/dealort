@@ -37,7 +37,8 @@
     "oklch",
     "orpc",
     "Topbar",
-    "waitlist"
+    "waitlist",
+    "arcjet"
   ],
   "tailwindCSS.experimental.configFile": "apps/web/src/index.css",
 }
