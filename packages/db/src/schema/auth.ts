@@ -8,6 +8,7 @@ export const user = sqliteTable("user", {
   image: text("image"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  theme: text("theme").notNull().default("system"),
 });
 
 export const session = sqliteTable("session", {
@@ -43,7 +44,6 @@ export const account = sqliteTable("account", {
   password: text("password"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-  theme: text("theme").notNull().default("system"),
 });
 
 export const verification = sqliteTable("verification", {

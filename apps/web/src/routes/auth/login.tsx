@@ -21,14 +21,6 @@ export const Route = createFileRoute("/auth/login")({
 function RouteComponent() {
   const navigate = useNavigate({ from: "/auth/login" });
 
-  // const [showSignIn, setShowSignIn] = useState(false);
-
-  // return showSignIn ? (
-  //   <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-  // ) : (
-  //   <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
-  // );
-
   useEffect(() => {
     authClient.getSession().then((session) => {
       if (session.data?.user) {

@@ -6,6 +6,7 @@ import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { twoFactor } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { sendWelcomeEmail } from "./emails/service";
 
 export const auth = betterAuth<BetterAuthOptions>({
@@ -22,6 +23,17 @@ export const auth = betterAuth<BetterAuthOptions>({
   // emailVerification: {
   //   sendOnSignUp: true,
   // },
+  user: {
+    additionalFields: {
+      theme: {
+        type: "string",
+        required: true,
+        defaultValue() {
+          return "system";
+        },
+      },
+    },
+  },
   socialProviders: {
     google: {
       prompt: "consent",
@@ -46,7 +58,7 @@ export const auth = betterAuth<BetterAuthOptions>({
       httpOnly: true,
     },
   },
-  plugins: [passkey(), twoFactor()],
+  plugins: [passkey(), twoFactor(), tanstackStartCookies()],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {

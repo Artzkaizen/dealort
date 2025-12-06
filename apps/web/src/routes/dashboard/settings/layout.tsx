@@ -67,7 +67,7 @@ function RouteComponent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const { setOpen, setOpenMobile } = useSidebar();
+  const { setOpen } = useSidebar();
 
   // Helper function to determine if a link is active
   const isLinkActive = (linkPath: string) => {
@@ -145,7 +145,7 @@ function RouteComponent() {
 
   return (
     <main className="">
-      <section className="flex items-center gap-1 px-2 py-5">
+      <section className="flex items-center gap-1 border-b px-2 py-5">
         <Avatar className="size-16">
           <AvatarImage src={user?.image || ""} />
           <AvatarFallback>
@@ -228,7 +228,7 @@ function RouteComponent() {
 
       <section className="flex min-h-[90vh] flex-col md:flex-row">
         {/* Vertical nav for larger screens */}
-        <nav className="hidden min-h-full basis-[20%] flex-col gap-2 rounded-lg border-t border-r bg-secondary/10 px-2 pt-2 md:flex">
+        <nav className="hidden min-h-full basis-[20%] flex-col gap-2 rounded-lg border-r bg-secondary/10 px-2 pt-2 md:flex">
           {settingsLinks.map((link) => {
             const isActive = isLinkActive(link.path);
             return (
