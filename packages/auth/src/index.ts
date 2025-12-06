@@ -2,14 +2,14 @@ import { passkey } from "@better-auth/passkey";
 import { db } from "@dealort/db";
 import * as schema from "@dealort/db/schema/auth";
 import { env } from "@dealort/utils/env";
-import { type BetterAuthOptions, betterAuth } from "better-auth";
+import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
-import { twoFactor } from "better-auth/plugins";
+import { twoFactor, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { sendWelcomeEmail } from "./emails/service";
 
-export const auth = betterAuth<BetterAuthOptions>({
+export const auth = betterAuth<BetterAuthOptions >({
   appName: "Dealort",
   database: drizzleAdapter(db, {
     provider: "sqlite",
@@ -32,6 +32,13 @@ export const auth = betterAuth<BetterAuthOptions>({
           return "system";
         },
       },
+      bio: {
+        type: "string",
+        required: false,
+        defaultValue() {
+          return "";
+        },
+      },
     },
   },
   socialProviders: {
@@ -39,15 +46,23 @@ export const auth = betterAuth<BetterAuthOptions>({
       prompt: "consent",
       clientId: env.GOOGLE_CLIENT_ID as string,
       clientSecret: env.GOOGLE_CLIENT_SECRET as string,
-      mapProfileToUser: () => ({
+      mapProfileToUser: (profile) => ({
         theme: "system",
+        username:
+          profile.name?.toLowerCase().replace(/ /g, "") +
+          Math.random().toString(36).substring(2, 15),
+        bio: "",
       }),
     },
     github: {
       clientId: env.GITHUB_CLIENT_ID as string,
       clientSecret: env.GITHUB_CLIENT_SECRET as string,
-      mapProfileToUser: () => ({
+      mapProfileToUser: (profile) => ({
         theme: "system",
+        username:
+          profile.name?.toLowerCase().replace(/ /g, "") +
+          Math.random().toString(36).substring(2, 15),
+        bio: "",
       }),
     },
   },
@@ -58,7 +73,7 @@ export const auth = betterAuth<BetterAuthOptions>({
       httpOnly: true,
     },
   },
-  plugins: [passkey(), twoFactor(), tanstackStartCookies()],
+  plugins: [passkey(), twoFactor(), username(), tanstackStartCookies()],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {
@@ -74,6 +89,9 @@ export const auth = betterAuth<BetterAuthOptions>({
         }
       }
     }),
+  },
+  rateLimit: {
+    storage: "database",
   },
   // Email notifications (welcome & security warnings) are handled via middleware
   // in apps/server/src/index.ts which intercepts auth responses

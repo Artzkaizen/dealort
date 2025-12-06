@@ -15,6 +15,41 @@
       "when": 1764941493463,
       "tag": "0001_salty_magma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765022655403,
+      "tag": "0002_overjoyed_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1765055748636,
+      "tag": "0003_colorful_iron_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1765056444836,
+      "tag": "0004_serious_millenium_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1765057041934,
+      "tag": "0005_legal_gorgon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1765057557282,
+      "tag": "0006_shiny_shadowcat",
+      "breakpoints": true
     }
   ]
 }

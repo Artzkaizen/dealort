@@ -94,7 +94,7 @@ function RouteComponent() {
           <div className="flex flex-col gap-px">
             <h3 className="font-medium text-xs sm:text-sm">Preferred Theme</h3>
             <p className="text-muted-foreground text-xs sm:text-sm">
-              {user?.theme}
+              {user.theme}
             </p>
           </div>
 

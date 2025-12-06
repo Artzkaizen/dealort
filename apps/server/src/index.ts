@@ -9,16 +9,9 @@ import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
-import arcjet, {
-  type BotOptions,
-  type EmailOptions,
-  type SlidingWindowRateLimitOptions,
-  shield,
-} from "arcjet";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { detectBot, protectSignup, slidingWindow } from "arcjet";
 
 const app = new Hono();
 

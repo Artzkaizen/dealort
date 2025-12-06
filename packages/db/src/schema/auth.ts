@@ -4,11 +4,16 @@ export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  username: text("username").unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
   image: text("image"),
+  twoFactorEnabled: integer("two_factor_enabled", { mode: "boolean" })
+    .notNull()
+    .default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   theme: text("theme").notNull().default("system"),
+  bio: text("bio"),
 });
 
 export const session = sqliteTable("session", {
@@ -21,7 +26,7 @@ export const session = sqliteTable("session", {
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => user.id, { onDelete: "cascade" }),
 });
 
 export const account = sqliteTable("account", {
@@ -30,7 +35,7 @@ export const account = sqliteTable("account", {
   providerId: text("provider_id").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => user.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -62,7 +67,7 @@ export const passkey = sqliteTable("passkey", {
   publicKey: text("public_key").notNull(),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => user.id, { onDelete: "cascade" }),
   credentialId: text("credential_id").notNull(),
   counter: integer("counter").notNull(),
   deviceType: text("device_type").notNull(),
@@ -77,7 +82,7 @@ export const twoFactor = sqliteTable("two_factor", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => user.id, { onDelete: "cascade" }),
   secret: text("secret").notNull(),
   backupCodes: text("backup_codes"),
   enabled: integer("enabled", { mode: "boolean" }).notNull().default(false),
