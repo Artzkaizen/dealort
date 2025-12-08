@@ -10,19 +10,20 @@
     "start": "bun run dist/index.js"
   },
   "dependencies": {
-    "hono": "catalog:",
-    "@orpc/server": "catalog:",
-    "@orpc/openapi": "catalog:",
-    "@orpc/zod": "catalog:",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "zod": "catalog:",
-    "arcjet": "catalog:",
-    "drizzle-orm": "^0.44.2",
     "@dealort/api": "workspace:*",
     "@dealort/auth": "workspace:*",
     "@dealort/db": "workspace:*",
-    "@dealort/utils": "workspace:*"
+    "@dealort/utils": "workspace:*",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "@orpc/zod": "catalog:",
+    "arcjet": "catalog:",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "^0.44.2",
+    "hono": "catalog:",
+    "uploadthing": "^7.7.4",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",

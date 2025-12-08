@@ -2,6 +2,7 @@
 
 import { createContext } from "@dealort/api/context";
 import { appRouter } from "@dealort/api/routers/index";
+import { uploadRouteHandler } from "@dealort/api/routers/uploadthing";
 import { auth } from "@dealort/auth";
 import { env } from "@dealort/utils/env";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
@@ -9,7 +10,7 @@ import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
@@ -150,7 +151,15 @@ app.use(
   cors({
     origin: env.CORS_ORIGIN || "",
     allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x-uploadthing-package",
+      "x-uploadthing-version",
+      "b3",
+      "referer",
+      "traceparent",
+    ],
     credentials: true,
   })
 );
@@ -159,6 +168,20 @@ app.use(
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.get("/", (c) => c.text("OK"));
+
+async function uploadThingAdapter(c: Context) {
+  console.log("reached uploadThingAdapter");
+  const response = await uploadRouteHandler(c.req.raw);
+
+  // Return the response directly, converting it to Hono's response format
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
+
+app.use("/api/uploadthing/*", uploadThingAdapter);
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [
@@ -204,5 +227,4 @@ app.use("/*", async (c, next) => {
 
   await next();
 });
-
 export default app;

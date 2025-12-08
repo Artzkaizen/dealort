@@ -21,14 +21,15 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@orpc/server": "catalog:",
+    "@dealort/auth": "workspace:*",
+    "@dealort/db": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
-    "hono": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@dealort/auth": "workspace:*",
-    "@dealort/db": "workspace:*"
+    "hono": "catalog:",
+    "uploadthing": "^7.7.4",
+    "zod": "catalog:"
   }
 }

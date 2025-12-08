@@ -1,4 +1,6 @@
+import { db } from "@dealort/db";
 import type { RouterClient } from "@orpc/server";
+import { z } from "zod";
 import { protectedProcedure, publicProcedure } from "../index";
 
 export const appRouter = {
@@ -7,6 +9,21 @@ export const appRouter = {
     message: "This is private",
     user: context.session?.user,
   })),
+  updateUserImage: protectedProcedure
+    .input(z.object({ image: z.string().url() }))
+    .handler(async ({ context, input }) => {
+      if (!context.session?.user) {
+        throw new Error("Unauthorized");
+      }
+
+      // Update user image using SQL directly
+      await db.$client.execute({
+        sql: "UPDATE user SET image = ?, updated_at = ? WHERE id = ?",
+        args: [input.image, new Date().toISOString(), context.session.user.id],
+      });
+
+      return { success: true };
+    }),
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

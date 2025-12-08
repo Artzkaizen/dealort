@@ -16,6 +16,8 @@ export const env = createEnv({
     ARCJET_KEY: z.string().optional(), // Optional for development, required for production
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.string().email().optional(), // Optional, defaults to Resend domain
+    UPLOADTHING_TOKEN: z.string().min(1),
+    UPLOADTHING_CALLBACK_URL: z.string().min(1),
   },
 
   client: {

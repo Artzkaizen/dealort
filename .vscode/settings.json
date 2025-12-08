@@ -32,13 +32,14 @@
     "source.organizeImports.biome": "explicit"
   },
   "cSpell.words": [
+    "arcjet",
     "dealort",
     "libsql",
     "oklch",
     "orpc",
     "Topbar",
-    "waitlist",
-    "arcjet"
+    "UPLOADTHING",
+    "waitlist"
   ],
   "tailwindCSS.experimental.configFile": "apps/web/src/index.css",
 }

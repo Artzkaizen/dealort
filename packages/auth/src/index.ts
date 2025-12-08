@@ -9,6 +9,9 @@ import { twoFactor, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { sendWelcomeEmail } from "./emails/service";
 
+const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
+const numbersOnlyRegex = /^\d+$/;
+
 const authConfig: BetterAuthOptions = {
   appName: "Dealort",
   database: drizzleAdapter(db, {
@@ -66,7 +69,21 @@ const authConfig: BetterAuthOptions = {
       httpOnly: true,
     },
   },
-  plugins: [passkey(), twoFactor(), username(), tanstackStartCookies()],
+  plugins: [
+    passkey(),
+    twoFactor(),
+    username({
+      usernameValidator: (username: string) => {
+        if (username.length < 3) return false;
+        // Disallow all chars except letters, numbers, dashes, and underscores
+        if (!validUsernameRegex.test(username)) return false;
+        // Cannot be only numbers
+        if (numbersOnlyRegex.test(username)) return false;
+        return true;
+      },
+    }),
+    tanstackStartCookies(),
+  ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {
