@@ -6,7 +6,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FieldDescription, FieldLabel } from "../ui/field";
+import { FieldDescription } from "../ui/field";
+import { FormLabel } from "../ui/form";
 
 interface TextFieldProps
   extends React.HTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
@@ -39,13 +40,10 @@ export function TextField({
     <div className={`w-full ${className}`}>
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-px">
-          <FieldLabel
-            className="text-foreground text-xs sm:text-sm"
-            htmlFor={name}
-          >
+          <FormLabel className="text-foreground text-xs sm:text-sm">
             {label}
             {required ? <span className="text-destructive">*</span> : null}
-          </FieldLabel>
+          </FormLabel>
 
           {infoTooltip && (
             <Tooltip>

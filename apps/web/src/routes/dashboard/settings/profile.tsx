@@ -20,6 +20,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -71,98 +72,109 @@ function RouteComponent() {
 
   return (
     <div className="px-2 py-2">
-      <section className="mb-8">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Avatar className="size-24">
-              {isUploading ? (
-                <Skeleton className="size-full">
-                  <CircularProgress
-                    className="size-full"
-                    value={uploadProgress}
-                  >
-                    <CircularProgressIndicator>
-                      <CircularProgressTrack />
-                      <CircularProgressRange />
-                    </CircularProgressIndicator>
-                    <CircularProgressValueText />
-                  </CircularProgress>
-                </Skeleton>
-              ) : (
-                <>
-                  <AvatarImage
-                    alt={user?.name || "User"}
-                    src={user?.image || ""}
-                  />
-                  <AvatarFallback>
-                    <User className="size-12" />
-                  </AvatarFallback>
-                </>
-              )}
-            </Avatar>
-
-            <UploadButton
-              appearance={{
-                container:
-                  "absolute right-0 -bottom-2 size-fit! rounded-full [&>div]:h-0 [&>div]:p-0! [&>div]leading-0! cursor-pointer! disabled:cursor-not-allowed!",
-                button:
-                  "rounded-full size-fit! p-0! bg-transparent! cursor-pointer! disabled:cursor-not-allowed!",
-              }}
-              className="size-fit cursor-pointer! disabled:cursor-not-allowed!"
-              content={{
-                button: (
-                  <Button
-                    aria-hidden="true"
-                    className="pointer-events-none cursor-pointer rounded-full opacity-75 hover:opacity-100 disabled:bg-red-500!"
-                    // Remove onClick and add pointer-events-none so parent handles click
-                    disabled={isUploading}
-                    size="icon" // prevent tab focus as button is now decorative
-                    tabIndex={-1}
-                  >
-                    {isUploading ? (
-                      <Spinner className="size-3" />
-                    ) : (
-                      <EditIcon className="size-3" />
-                    )}
-                  </Button>
-                ),
-              }}
-              disabled={isUploading}
-              endpoint="profileImage"
-              onBeforeUploadBegin={(files) => {
-                setIsUploading(true);
-                return files;
-              }}
-              onClientUploadComplete={async (res) => {
-                console.log("Files: ", res);
-                if (res?.[0]?.ufsUrl) {
-                  try {
-                    await client.updateUserImage({ image: res[0].ufsUrl });
-                    toast.success("Profile picture updated successfully");
-                    // navigate({ to: "/dashboard/settings/profile" });
-                    refetch();
-                  } catch (error) {
-                    console.error("Error updating user image:", error);
-                    toast.error("Failed to update profile picture");
-                  }
-                }
-                setIsUploading(false);
-              }}
-              onUploadError={(error: Error) => {
-                // Do something with the error.
-                console.log(error);
-                setIsUploading(false);
-
-                toast.error(`ERROR! ${error.message}`);
-              }}
-              onUploadProgress={(progress) => {
-                setUploadProgress(progress);
-              }}
-            />
-          </div>
+      {/* Profile picture section */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3">
           <div className="flex flex-col gap-1">
-            <h1 className="font-bold text-xl sm:text-2xl">Profile Picture</h1>
-            <p className="text-muted-foreground text-xs sm:text-sm">
+            <div className="relative">
+              <Avatar className="size-24">
+                {isUploading ? (
+                  <Skeleton className="size-full">
+                    <CircularProgress
+                      className="size-full"
+                      value={uploadProgress}
+                    >
+                      <CircularProgressIndicator>
+                        <CircularProgressTrack />
+                        <CircularProgressRange />
+                      </CircularProgressIndicator>
+                      <CircularProgressValueText />
+                    </CircularProgress>
+                  </Skeleton>
+                ) : (
+                  <>
+                    <AvatarImage
+                      alt={user?.name || "User"}
+                      src={user?.image || ""}
+                    />
+                    <AvatarFallback>
+                      <User className="size-12" />
+                    </AvatarFallback>
+                  </>
+                )}
+              </Avatar>
+
+              <UploadButton
+                appearance={{
+                  container:
+                    "absolute left-16 right-0 -bottom-0 size-fit! rounded-full [&>div]:h-0 [&>div]:p-0! [&>div]leading-0! cursor-pointer! disabled:cursor-not-allowed! overflow-hidden!",
+                  button:
+                    "rounded-full size-fit! p-0! bg-transparent! cursor-pointer! disabled:cursor-not-allowed!",
+                }}
+                className="size-fit cursor-pointer! disabled:cursor-not-allowed!"
+                content={{
+                  button: (
+                    <Button
+                      aria-hidden="true"
+                      className="pointer-events-none cursor-pointer rounded-full opacity-75 hover:opacity-100 disabled:bg-red-500!"
+                      // Remove onClick and add pointer-events-none so parent handles click
+                      disabled={isUploading}
+                      size="icon" // prevent tab focus as button is now decorative
+                      tabIndex={-1}
+                    >
+                      {isUploading ? (
+                        <Spinner className="size-3" />
+                      ) : (
+                        <EditIcon className="size-3" />
+                      )}
+                    </Button>
+                  ),
+                }}
+                disabled={isUploading}
+                endpoint="profileImage"
+                onBeforeUploadBegin={(files) => {
+                  setIsUploading(true);
+                  return files;
+                }}
+                onClientUploadComplete={async (res) => {
+                  console.log("Files: ", res);
+                  if (res?.[0]?.ufsUrl) {
+                    try {
+                      await client.updateUserImage({ image: res[0].ufsUrl });
+                      toast.success("Profile picture updated successfully");
+                      // navigate({ to: "/dashboard/settings/profile" });
+                      refetch();
+                    } catch (error) {
+                      console.error("Error updating user image:", error);
+                      toast.error("Failed to update profile picture");
+                    }
+                  }
+                  setIsUploading(false);
+                }}
+                onUploadError={(error: Error) => {
+                  // Do something with the error.
+                  console.log(error);
+                  setIsUploading(false);
+
+                  toast.error(`ERROR! ${error.message}`);
+                }}
+                onUploadProgress={(progress) => {
+                  setUploadProgress(progress);
+                }}
+              />
+            </div>
+
+            <div className="flex max-w-[100px] flex-col gap-px">
+              <h5 className="font-bold text-xs">Max Size: 2MB</h5>
+              <p className="text-[9px] text-muted-foreground">
+                Accepts only images (png, jpg, jpeg, webp)
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-px">
+            <h1 className="font-bold text-base sm:text-lg">Profile Picture</h1>
+            <p className="text-muted-foreground text-xs sm:text-xs">
               Click the edit button to upload a new profile picture
             </p>
             {isUploading && (
@@ -172,7 +184,8 @@ function RouteComponent() {
         </div>
       </section>
 
-      <section className="min-h-screen">
+      {/* Profile details section */}
+      <section className="">
         <Form {...detailsForm}>
           <form
             className="space-y-8"
@@ -185,12 +198,13 @@ function RouteComponent() {
               </p>
             </div>
 
-            <div className="max-w-sm space-y-12">
+            <div className="max-w-md space-y-12">
               <FormField
                 control={detailsForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
