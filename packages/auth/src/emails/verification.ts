@@ -38,7 +38,7 @@ export function VerificationEmail({
             </p>
             <p style="font-size: 14px; color: #666; margin-top: 30px;">
               Best regards,<br>
-              The Dealort Team
+               Dealort Team
             </p>
           </div>
         </body>

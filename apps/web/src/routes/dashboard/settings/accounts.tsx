@@ -95,7 +95,10 @@ function RouteComponent() {
               <CardContent>
                 <BetterAuthActionButton
                   action={() =>
-                    handleDisconnectAccount(account.accountId, account.providerId)
+                    handleDisconnectAccount(
+                      account.accountId,
+                      account.providerId
+                    )
                   }
                   aria-label="Unlink Account"
                   requireAreYouSure

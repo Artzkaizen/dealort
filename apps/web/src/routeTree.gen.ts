@@ -22,6 +22,7 @@ import { Route as DashboardSettingsSessionsRouteImport } from './routes/dashboar
 import { Route as DashboardSettingsSecurityRouteImport } from './routes/dashboard/settings/security'
 import { Route as DashboardSettingsProfileRouteImport } from './routes/dashboard/settings/profile'
 import { Route as DashboardSettingsDangerRouteImport } from './routes/dashboard/settings/danger'
+import { Route as DashboardSettingsAppearanceRouteImport } from './routes/dashboard/settings/appearance'
 import { Route as DashboardSettingsAccountsRouteImport } from './routes/dashboard/settings/accounts'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
@@ -93,6 +94,12 @@ const DashboardSettingsDangerRoute = DashboardSettingsDangerRouteImport.update({
   path: '/danger',
   getParentRoute: () => DashboardSettingsLayoutRoute,
 } as any)
+const DashboardSettingsAppearanceRoute =
+  DashboardSettingsAppearanceRouteImport.update({
+    id: '/appearance',
+    path: '/appearance',
+    getParentRoute: () => DashboardSettingsLayoutRoute,
+  } as any)
 const DashboardSettingsAccountsRoute =
   DashboardSettingsAccountsRouteImport.update({
     id: '/accounts',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
   '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/appearance': typeof DashboardSettingsAppearanceRoute
   '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/products/new'
     | '/dashboard/settings/accounts'
+    | '/dashboard/settings/appearance'
     | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
@@ -188,6 +199,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/products/new'
     | '/dashboard/settings/accounts'
+    | '/dashboard/settings/appearance'
     | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/products/new'
     | '/dashboard/settings/accounts'
+    | '/dashboard/settings/appearance'
     | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
@@ -314,6 +327,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsDangerRouteImport
       parentRoute: typeof DashboardSettingsLayoutRoute
     }
+    '/dashboard/settings/appearance': {
+      id: '/dashboard/settings/appearance'
+      path: '/appearance'
+      fullPath: '/dashboard/settings/appearance'
+      preLoaderRoute: typeof DashboardSettingsAppearanceRouteImport
+      parentRoute: typeof DashboardSettingsLayoutRoute
+    }
     '/dashboard/settings/accounts': {
       id: '/dashboard/settings/accounts'
       path: '/accounts'
@@ -356,6 +376,7 @@ const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
 
 interface DashboardSettingsLayoutRouteChildren {
   DashboardSettingsAccountsRoute: typeof DashboardSettingsAccountsRoute
+  DashboardSettingsAppearanceRoute: typeof DashboardSettingsAppearanceRoute
   DashboardSettingsDangerRoute: typeof DashboardSettingsDangerRoute
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute
   DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute
@@ -366,6 +387,7 @@ interface DashboardSettingsLayoutRouteChildren {
 const DashboardSettingsLayoutRouteChildren: DashboardSettingsLayoutRouteChildren =
   {
     DashboardSettingsAccountsRoute: DashboardSettingsAccountsRoute,
+    DashboardSettingsAppearanceRoute: DashboardSettingsAppearanceRoute,
     DashboardSettingsDangerRoute: DashboardSettingsDangerRoute,
     DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
     DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,

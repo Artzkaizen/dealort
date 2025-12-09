@@ -9,11 +9,14 @@ import { twoFactor, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import {
   sendDeleteAccountVerificationEmail,
+  sendResetPasswordEmail,
   sendWelcomeEmail,
 } from "./emails/service";
 
 const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 const numbersOnlyRegex = /^\d+$/;
+
+// TODO: enable email/password login/signup later
 
 /**
  * Generates a unique username for a user
@@ -69,11 +72,33 @@ const authConfig: BetterAuthOptions = {
       },
     },
     deleteUser: {
-        enabled: true,
-        sendDeleteAccountVerification: async ({ user, url }: { user: User, url: string }) => {
-      await sendDeleteAccountVerificationEmail({ to: user.email as string, name: user.name as string, verificationLink: url });
-        },
+      enabled: true,
+      sendDeleteAccountVerification: async ({
+        user,
+        url,
+      }: {
+        user: User;
+        url: string;
+      }) => {
+        await sendDeleteAccountVerificationEmail({
+          to: user.email as string,
+          name: user.name as string,
+          verificationLink: url,
+        });
+      },
     },
+  },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendResetPasswordEmail({
+        to: user.email as string,
+        name: user.name as string,
+        verificationLink: url,
+      });
+    },
+    resetPasswordTokenExpiresIn: 20 * 60, // 20 minutes in seconds
   },
   socialProviders: {
     google: {

@@ -10,6 +10,7 @@ import {
   ChevronRight,
   KeyIcon,
   Link2Icon,
+  PaletteIcon,
   PanelsTopLeftIcon,
   Shield,
   UserCircle2Icon,
@@ -47,6 +48,11 @@ const settingsLinks = [
     path: "/dashboard/settings/sessions",
     label: "Sessions",
     icon: KeyIcon,
+  },
+  {
+    path: "/dashboard/settings/appearance",
+    label: "Appearance",
+    icon: PaletteIcon,
   },
   {
     path: "/dashboard/settings/accounts",

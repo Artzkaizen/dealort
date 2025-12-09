@@ -101,15 +101,6 @@ function RouteComponent() {
 
   return (
     <div>
-      {/* <section className="px-2 py-2">
-        <h1 className="font-bold text-xl sm:text-xl">Security</h1>
-        <p className="text-muted-foreground text-xs">
-          Manage your security settings
-        </p>
-      </section> */}
-
-      {/* <Separator className="my-2" /> */}
-
       <section className="px-2">
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
