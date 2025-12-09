@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { ActionButton } from "@/components/ui/action-button";
+import { BetterAuthActionButton } from "@/components/better-auth-action-button";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -89,7 +89,6 @@ function RouteComponent() {
       {
         onError: (error) => {
           toast.error(error.error.message || "Failed to delete passkey");
-          return { error: true, message: error.error.message };
         },
         onSuccess: () => {
           toast.success("Passkey deleted successfully");
@@ -137,13 +136,13 @@ function RouteComponent() {
                       </p>
                     </div>
                     <div>
-                      <ActionButton
+                      <BetterAuthActionButton
                         action={() => handleDeletePasskey(passkey.id)}
                         requireAreYouSure
                         variant="destructive"
                       >
                         <TrashIcon className="size-4" />
-                      </ActionButton>
+                      </BetterAuthActionButton>
                     </div>
                   </div>
                 ))}

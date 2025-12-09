@@ -2,12 +2,15 @@ import { passkey } from "@better-auth/passkey";
 import { db } from "@dealort/db";
 import * as schema from "@dealort/db/schema/auth";
 import { env } from "@dealort/utils/env";
-import { type BetterAuthOptions, betterAuth } from "better-auth";
+import { type BetterAuthOptions, betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { twoFactor, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { sendWelcomeEmail } from "./emails/service";
+import {
+  sendDeleteAccountVerificationEmail,
+  sendWelcomeEmail,
+} from "./emails/service";
 
 const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9_-]*$/;
 const numbersOnlyRegex = /^\d+$/;
@@ -65,6 +68,12 @@ const authConfig: BetterAuthOptions = {
         },
       },
     },
+    deleteUser: {
+        enabled: true,
+        sendDeleteAccountVerification: async ({ user, url }: { user: User, url: string }) => {
+      await sendDeleteAccountVerificationEmail({ to: user.email as string, name: user.name as string, verificationLink: url });
+        },
+    },
   },
   socialProviders: {
     google: {
@@ -96,7 +105,6 @@ const authConfig: BetterAuthOptions = {
   },
   plugins: [
     passkey(),
-    twoFactor(),
     username({
       usernameValidator: (username: string) => {
         if (username.length < 3) return false;
@@ -114,6 +122,7 @@ const authConfig: BetterAuthOptions = {
           .replace(/^-+|-+$/g, "");
       },
     }),
+    twoFactor(),
     tanstackStartCookies(),
   ],
   hooks: {

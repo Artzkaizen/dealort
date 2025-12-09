@@ -34,7 +34,8 @@
     "db:push": "turbo -F @dealort/db db:push",
     "db:studio": "turbo -F @dealort/db db:studio",
     "db:generate": "turbo -F @dealort/db db:generate",
-    "db:migrate": "turbo -F @dealort/db db:migrate"
+    "db:migrate": "turbo -F @dealort/db db:migrate",
+    "auth:generate": "npx @better-auth/cli@latest generate --config ./packages/auth/src/index.ts --output ./packages/db/src/schema/auth.ts --yes"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.4.5",

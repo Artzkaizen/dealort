@@ -18,8 +18,11 @@ import { Route as PublicLaunchesRouteImport } from './routes/_public/launches'
 import { Route as DashboardSettingsLayoutRouteImport } from './routes/dashboard/settings/layout'
 import { Route as DashboardSettingsIndexRouteImport } from './routes/dashboard/settings/index'
 import { Route as PublicProductsIndexRouteImport } from './routes/_public/products/index'
+import { Route as DashboardSettingsSessionsRouteImport } from './routes/dashboard/settings/sessions'
 import { Route as DashboardSettingsSecurityRouteImport } from './routes/dashboard/settings/security'
 import { Route as DashboardSettingsProfileRouteImport } from './routes/dashboard/settings/profile'
+import { Route as DashboardSettingsDangerRouteImport } from './routes/dashboard/settings/danger'
+import { Route as DashboardSettingsAccountsRouteImport } from './routes/dashboard/settings/accounts'
 import { Route as DashboardProductsNewRouteImport } from './routes/dashboard/products/new'
 import { Route as DashboardTestTestATestBTestCTestRouteImport } from './routes/dashboard/test/test-a/test-b/test-c/test'
 
@@ -67,6 +70,12 @@ const PublicProductsIndexRoute = PublicProductsIndexRouteImport.update({
   path: '/products/',
   getParentRoute: () => PublicLayoutRoute,
 } as any)
+const DashboardSettingsSessionsRoute =
+  DashboardSettingsSessionsRouteImport.update({
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => DashboardSettingsLayoutRoute,
+  } as any)
 const DashboardSettingsSecurityRoute =
   DashboardSettingsSecurityRouteImport.update({
     id: '/security',
@@ -77,6 +86,17 @@ const DashboardSettingsProfileRoute =
   DashboardSettingsProfileRouteImport.update({
     id: '/profile',
     path: '/profile',
+    getParentRoute: () => DashboardSettingsLayoutRoute,
+  } as any)
+const DashboardSettingsDangerRoute = DashboardSettingsDangerRouteImport.update({
+  id: '/danger',
+  path: '/danger',
+  getParentRoute: () => DashboardSettingsLayoutRoute,
+} as any)
+const DashboardSettingsAccountsRoute =
+  DashboardSettingsAccountsRouteImport.update({
+    id: '/accounts',
+    path: '/accounts',
     getParentRoute: () => DashboardSettingsLayoutRoute,
   } as any)
 const DashboardProductsNewRoute = DashboardProductsNewRouteImport.update({
@@ -99,8 +119,11 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
+  '/dashboard/settings/sessions': typeof DashboardSettingsSessionsRoute
   '/products': typeof PublicProductsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
@@ -111,8 +134,11 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
+  '/dashboard/settings/sessions': typeof DashboardSettingsSessionsRoute
   '/products': typeof PublicProductsIndexRoute
   '/dashboard/settings': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
@@ -127,8 +153,11 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/products/new': typeof DashboardProductsNewRoute
+  '/dashboard/settings/accounts': typeof DashboardSettingsAccountsRoute
+  '/dashboard/settings/danger': typeof DashboardSettingsDangerRoute
   '/dashboard/settings/profile': typeof DashboardSettingsProfileRoute
   '/dashboard/settings/security': typeof DashboardSettingsSecurityRoute
+  '/dashboard/settings/sessions': typeof DashboardSettingsSessionsRoute
   '/_public/products/': typeof PublicProductsIndexRoute
   '/dashboard/settings/': typeof DashboardSettingsIndexRoute
   '/dashboard/test/test-a/test-b/test-c/test': typeof DashboardTestTestATestBTestCTestRoute
@@ -143,8 +172,11 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/'
     | '/dashboard/products/new'
+    | '/dashboard/settings/accounts'
+    | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
+    | '/dashboard/settings/sessions'
     | '/products'
     | '/dashboard/settings/'
     | '/dashboard/test/test-a/test-b/test-c/test'
@@ -155,8 +187,11 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/products/new'
+    | '/dashboard/settings/accounts'
+    | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
+    | '/dashboard/settings/sessions'
     | '/products'
     | '/dashboard/settings'
     | '/dashboard/test/test-a/test-b/test-c/test'
@@ -170,8 +205,11 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/dashboard/'
     | '/dashboard/products/new'
+    | '/dashboard/settings/accounts'
+    | '/dashboard/settings/danger'
     | '/dashboard/settings/profile'
     | '/dashboard/settings/security'
+    | '/dashboard/settings/sessions'
     | '/_public/products/'
     | '/dashboard/settings/'
     | '/dashboard/test/test-a/test-b/test-c/test'
@@ -248,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicProductsIndexRouteImport
       parentRoute: typeof PublicLayoutRoute
     }
+    '/dashboard/settings/sessions': {
+      id: '/dashboard/settings/sessions'
+      path: '/sessions'
+      fullPath: '/dashboard/settings/sessions'
+      preLoaderRoute: typeof DashboardSettingsSessionsRouteImport
+      parentRoute: typeof DashboardSettingsLayoutRoute
+    }
     '/dashboard/settings/security': {
       id: '/dashboard/settings/security'
       path: '/security'
@@ -260,6 +305,20 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/dashboard/settings/profile'
       preLoaderRoute: typeof DashboardSettingsProfileRouteImport
+      parentRoute: typeof DashboardSettingsLayoutRoute
+    }
+    '/dashboard/settings/danger': {
+      id: '/dashboard/settings/danger'
+      path: '/danger'
+      fullPath: '/dashboard/settings/danger'
+      preLoaderRoute: typeof DashboardSettingsDangerRouteImport
+      parentRoute: typeof DashboardSettingsLayoutRoute
+    }
+    '/dashboard/settings/accounts': {
+      id: '/dashboard/settings/accounts'
+      path: '/accounts'
+      fullPath: '/dashboard/settings/accounts'
+      preLoaderRoute: typeof DashboardSettingsAccountsRouteImport
       parentRoute: typeof DashboardSettingsLayoutRoute
     }
     '/dashboard/products/new': {
@@ -296,15 +355,21 @@ const PublicLayoutRouteWithChildren = PublicLayoutRoute._addFileChildren(
 )
 
 interface DashboardSettingsLayoutRouteChildren {
+  DashboardSettingsAccountsRoute: typeof DashboardSettingsAccountsRoute
+  DashboardSettingsDangerRoute: typeof DashboardSettingsDangerRoute
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute
   DashboardSettingsSecurityRoute: typeof DashboardSettingsSecurityRoute
+  DashboardSettingsSessionsRoute: typeof DashboardSettingsSessionsRoute
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute
 }
 
 const DashboardSettingsLayoutRouteChildren: DashboardSettingsLayoutRouteChildren =
   {
+    DashboardSettingsAccountsRoute: DashboardSettingsAccountsRoute,
+    DashboardSettingsDangerRoute: DashboardSettingsDangerRoute,
     DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
     DashboardSettingsSecurityRoute: DashboardSettingsSecurityRoute,
+    DashboardSettingsSessionsRoute: DashboardSettingsSessionsRoute,
     DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
   }
 

@@ -1,6 +1,6 @@
 import type { ClassValue } from "clsx";
 
-export const GithubIcon = ({ className }: { className: ClassValue }) => (
+export const GithubIcon = ({ className }: { className?: ClassValue }) => (
   <svg
     aria-labelledby="githubIcon"
     className={className as string}
@@ -15,7 +15,7 @@ export const GithubIcon = ({ className }: { className: ClassValue }) => (
   </svg>
 );
 
-export const GoogleIcon = ({ className }: { className: ClassValue }) => (
+export const GoogleIcon = ({ className }: { className?: ClassValue }) => (
   <svg
     aria-labelledby="googleIcon"
     className={className as string}

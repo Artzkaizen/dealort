@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { SecurityWarningEmail } from "./security-warning";
 import { VerificationEmail } from "./verification";
 import { WelcomeEmail } from "./welcome";
+import { DeleteVerificationEmail } from "./delete-verification";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -73,6 +74,25 @@ export async function sendVerificationEmail({
   verificationLink: string;
 }) {
   const email = VerificationEmail({ name, verificationLink });
+  return await resend.emails.send({
+    from: env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    to,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
+  });
+}
+
+export async function sendDeleteAccountVerificationEmail({
+  to,
+  name,
+  verificationLink,
+}: {
+  to: string;
+  name: string;
+  verificationLink: string;
+}) {
+  const email = DeleteVerificationEmail({ name, verificationLink });
   return await resend.emails.send({
     from: env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
     to,

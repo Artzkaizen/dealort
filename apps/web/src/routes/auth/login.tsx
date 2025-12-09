@@ -11,7 +11,7 @@ import { GithubIcon, GoogleIcon } from "@/assets/icons";
 import InvestmentSVG from "@/assets/illustrations/auth-investment.svg";
 import PitchingSVG from "@/assets/illustrations/auth-pitching.svg";
 import UnlockSVG from "@/assets/illustrations/auth-unlock.svg";
-import { ActionButton } from "@/components/ui/action-button";
+import { BetterAuthActionButton } from "@/components/better-auth-action-button";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -102,13 +102,13 @@ function RouteComponent() {
             <span className="grow border" />
           </div>
 
-          <ActionButton
+          <BetterAuthActionButton
             action={() => requestPasskeyAuth()}
             className="cursor-pointer py-6 text-sm"
             variant={"secondary"}
           >
             <FingerprintPatternIcon className="size-6" /> Use Passkey
-          </ActionButton>
+          </BetterAuthActionButton>
         </div>
       </div>
       <div className="col-span-2 min-h-screen max-md:hidden">
