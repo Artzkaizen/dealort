@@ -121,3 +121,31 @@ export async function sendResetPasswordEmail({
     text: email.text,
   });
 }
+
+export async function sendInvitationEmail({
+  to,
+  invitationUrl,
+  organizationName,
+}: {
+  to: string;
+  invitationUrl: string;
+  organizationName: string;
+}) {
+  console.log(`[Email Service] Sending invitation email to: ${to}`);
+
+  if (!env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+
+  const email = InvitationEmail({ invitationUrl, organizationName });
+  const result = await resend.emails.send({
+    from: env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    to,
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
+  });
+
+  console.log("[Email Service] Invitation email result:", result);
+  return result;
+}

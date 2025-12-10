@@ -1,14 +1,21 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   Edit,
   ExternalLinkIcon,
   FileText,
   Mail,
+  PlusIcon,
   Trash2,
   Users,
 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { BetterAuthActionButton } from "@/components/better-auth-action-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -17,10 +24,41 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { authClient } from "@/lib/auth-client";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+const MEMBER_LIMIT = 15;
+
+const invitationSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+type InvitationFormData = z.infer<typeof invitationSchema>;
 
 export const Route = createFileRoute("/dashboard/products/$slug/")({
   loader: async ({ params }) => {
@@ -53,6 +91,8 @@ function RouteComponent() {
   );
 
   const gallery = (org.gallery as string[]) || [];
+  const memberCount = org.members?.length ?? 0;
+  const remainingSlots = MEMBER_LIMIT - memberCount;
 
   async function handleDeleteOrganization() {
     const result = await authClient.organization.delete({
@@ -148,9 +188,11 @@ function RouteComponent() {
                       <CarouselItem key={index}>
                         <div className="flex items-center justify-center rounded-lg border bg-muted p-2">
                           <img
-                            alt={`Gallery image ${index + 1}`}
+                            alt={`Gallery ${index + 1}`}
                             className="max-h-96 w-full rounded-lg object-contain"
+                            height={100}
                             src={imageUrl}
+                            width={100}
                           />
                         </div>
                       </CarouselItem>
@@ -303,7 +345,12 @@ function RouteComponent() {
 
         <TabsContent className="space-y-4" value="members">
           <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h2 className="mb-4 font-semibold text-xl">Members</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-semibold text-xl">Members</h2>
+              <p className="text-muted-foreground text-sm">
+                <SlotCountBadge remainingSlots={remainingSlots} />
+              </p>
+            </div>
             {org.members && org.members.length > 0 ? (
               <div className="space-y-2">
                 {org.members.map((member) => (
@@ -338,7 +385,17 @@ function RouteComponent() {
 
         <TabsContent className="space-y-4" value="invitations">
           <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h2 className="mb-4 font-semibold text-xl">Invitations</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-semibold text-xl">Invitations</h2>
+              <div className="flex items-center gap-4">
+                <p className="text-muted-foreground text-sm">
+                  <SlotCountBadge remainingSlots={remainingSlots} />
+                </p>
+                {isOwner && remainingSlots > 0 && (
+                  <InviteMemberDialog organizationId={org.id} />
+                )}
+              </div>
+            </div>
             {org.invitations && org.invitations.length > 0 ? (
               <div className="space-y-2">
                 {org.invitations.map((invitation) => (
@@ -355,11 +412,15 @@ function RouteComponent() {
                     <span
                       className={cn(
                         "rounded px-2 py-1 font-medium text-xs capitalize",
-                        invitation.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : invitation.status === "accepted"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        (() => {
+                          if (invitation.status === "pending") {
+                            return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+                          }
+                          if (invitation.status === "accepted") {
+                            return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+                          }
+                          return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+                        })()
                       )}
                     >
                       {invitation.status}
@@ -376,5 +437,114 @@ function RouteComponent() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function InviteMemberDialog({ organizationId }: { organizationId: string }) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const form = useForm<InvitationFormData>({
+    resolver: zodResolver(invitationSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  async function onSubmit(data: InvitationFormData) {
+    await authClient.organization.inviteMember(
+      {
+        email: data.email,
+        role: "member",
+        organizationId,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Invitation sent successfully");
+          form.reset();
+          setOpen(false);
+          router.invalidate();
+        },
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to send invitation");
+        },
+      }
+    );
+  }
+
+  return (
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <PlusIcon className="mr-2 size-4" />
+          Invite Member
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite Member</DialogTitle>
+          <DialogDescription>
+            Send an invitation email to add a new member to this organization.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="email@example.com"
+                      type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="mt-6">
+              <Button
+                onClick={() => setOpen(false)}
+                type="button"
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button disabled={form.formState.isSubmitting} type="submit">
+                {form.formState.isSubmitting ? "Sending..." : "Send Invitation"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SlotCountBadge({ remainingSlots }: { remainingSlots: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Badge
+          className={cn("ml-2", {
+            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200":
+              remainingSlots > 5,
+            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200":
+              remainingSlots > 0 && remainingSlots <= 5,
+            "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200":
+              remainingSlots <= 0,
+          })}
+        >
+          ({remainingSlots})
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-36">
+        {remainingSlots} slots remaining
+      </TooltipContent>
+    </Tooltip>
   );
 }

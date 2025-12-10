@@ -9,6 +9,7 @@ import { organization, twoFactor, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import {
   sendDeleteAccountVerificationEmail,
+  sendInvitationEmail,
   sendResetPasswordEmail,
   sendWelcomeEmail,
 } from "./emails/service";
@@ -150,6 +151,20 @@ const authConfig: BetterAuthOptions = {
     }),
     organization({
       allowUserToCreateOrganization: true,
+      memberLimit: 15,
+      sendInvitation: async ({
+        invitation,
+        url,
+      }: {
+        invitation: { email: string; organization: { name: string } };
+        url: string;
+      }) => {
+        await sendInvitationEmail({
+          to: invitation.email,
+          invitationUrl: url,
+          organizationName: invitation.organization.name,
+        });
+      },
       schema: {
         organization: {
           additionalFields: {
