@@ -135,7 +135,7 @@ function HomeComponent() {
         }}
       >
         <p className="flex items-center gap-2 text-foreground/50 text-sm">
-          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All rights
+          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All right
           reserved
         </p>
       </footer>
