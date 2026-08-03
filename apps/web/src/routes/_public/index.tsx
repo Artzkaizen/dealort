@@ -45,7 +45,7 @@ function HomeComponent() {
               viewport={{ once: true }}
               whileInView={{ filter: "blur(0px)", y: 0 }}
             >
-              The Best Launchpad For Your Start up
+             New PR #3
             </motion.h1>
 
             <motion.p
