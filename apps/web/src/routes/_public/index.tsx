@@ -45,7 +45,7 @@ function HomeComponent() {
               viewport={{ once: true }}
               whileInView={{ filter: "blur(0px)", y: 0 }}
             >
-             New PR #3
+             sdfsd
             </motion.h1>
 
             <motion.p
@@ -135,7 +135,7 @@ function HomeComponent() {
         }}
       >
         <p className="flex items-center gap-2 text-foreground/50 text-sm">
-          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All rights
+          <CopyrightIcon /> {new Date().getFullYear()}, Dealort. All right
           reserved
         </p>
       </footer>
