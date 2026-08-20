@@ -45,7 +45,7 @@ function HomeComponent() {
               viewport={{ once: true }}
               whileInView={{ filter: "blur(0px)", y: 0 }}
             >
-             New PR #3
+             Change here
             </motion.h1>
 
             <motion.p
